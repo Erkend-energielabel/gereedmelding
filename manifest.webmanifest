@@ -1,0 +1,9 @@
+{
+  "name": "Constructif Gereedmelding CV",
+  "short_name": "Gereedmelding",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5F1EE",
+  "theme_color": "#EB6608",
+  "icons": [{"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}]
+}

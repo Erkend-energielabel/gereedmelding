@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function ingelogd() { return request.auth != null; }
+    function kantoor()  { return request.auth != null && request.auth.token.email == 'kantoor@gereedmelding.app'; }
+
+    // Meldingen: iedereen die is ingelogd mag lezen, aanmaken en bijwerken; alleen kantoor mag verwijderen
+    match /meldingen/{id} {
+      allow read, create, update: if ingelogd();
+      allow delete: if kantoor();
+    }
+    // Foto's bij meldingen
+    match /fotos/{id} {
+      allow read, write: if ingelogd();
+    }
+    // Complexen, gevels en instellingen (standaard radiatoren): lezen voor iedereen, wijzigen alleen kantoor
+    match /complexen/{id} { allow read: if ingelogd(); allow write: if kantoor(); }
+    match /gevels/{id}    { allow read: if ingelogd(); allow write: if kantoor(); }
+    match /config/{id}    { allow read: if ingelogd(); allow write: if kantoor(); }
+  }
+}
