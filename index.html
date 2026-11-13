@@ -63,7 +63,8 @@ html.uitgelogd body{overflow:hidden}
 <script>
 /* ---------- Firebase-koppeling: login met code, database en downloads ---------- */
 (function(){
-  var cfg=window.FIREBASE_CONFIG, LG=window.APP_LOGINS||{kantoor:'kantoor@gereedmelding.app',monteur:'monteur@gereedmelding.app'};
+  var cfg=window.FIREBASE_CONFIG||{apiKey:"AIzaSyDs6Y1PAKNURA4lde5Xe6Zr5kZq7iZBzYE",authDomain:"gereedmelding-cv.firebaseapp.com",projectId:"gereedmelding-cv",storageBucket:"gereedmelding-cv.firebasestorage.app",messagingSenderId:"1025814267228",appId:"1:1025814267228:web:ddea0306d6006dd6a96d99"},
+      LG=window.APP_LOGINS||{kantoor:'kantoor@gereedmelding.app',monteur:'monteur@gereedmelding.app'}, APPURL='https://erkend-energielabel.github.io/gereedmelding/';
   var resolveDb, dbReady=new Promise(function(r){resolveDb=r});
   var dl={save:function(o){return new Promise(function(res){var blob=o.data instanceof Blob?o.data:new Blob([o.data]);var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=o.filename||'download';a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},6000);res({status:'saved'})})}};
   window.claude={use:function(n){if(n==='downloads')return Promise.resolve(dl);if(n==='db')return dbReady;return Promise.resolve(null)}};
@@ -73,6 +74,7 @@ html.uitgelogd body{overflow:hidden}
   function ui(f){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',f);else f()}
   function fout(t){ui(function(){var e=document.getElementById('lgErr');if(e){e.textContent=t;e.hidden=!t}})}
   function toon(on){ui(function(){var l=document.getElementById('login');if(l)l.hidden=!on;document.documentElement.classList.toggle('uitgelogd',on)})}
+  if(!/^https?:$/.test(location.protocol)){toon(true);fout('Open de app via '+APPURL+' (niet als los bestand).');resolveDb(null);return}
   if(!cfg||!window.firebase){toon(true);fout(!cfg?'Firebase is nog niet ingesteld: vul firebase-config.js in (zie LEESMIJ).':'Kan Firebase niet laden. Controleer je internetverbinding en herlaad.');resolveDb(null);return}
   firebase.initializeApp(cfg);
   var fs=firebase.firestore();try{fs.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
@@ -84,7 +86,7 @@ html.uitgelogd body{overflow:hidden}
     eerst=false});
   window.csLogin=function(code){code=String(code||'').trim();if(code.length<6){fout('De code is minimaal 6 tekens.');return Promise.resolve()}fout('');
     return auth.signInWithEmailAndPassword(LG.kantoor,code).catch(function(){return auth.signInWithEmailAndPassword(LG.monteur,code)}).catch(function(e){
-      fout(e&&e.code==='auth/network-request-failed'?'Geen verbinding. Inloggen kan alleen online.':e&&e.code==='auth/too-many-requests'?'Te vaak geprobeerd. Wacht even en probeer opnieuw.':'Onjuiste code.')})};
+      fout(e&&e.code==='auth/unauthorized-domain'?'Dit adres mag niet inloggen. Open de app via '+APPURL:e&&e.code==='auth/network-request-failed'?'Geen verbinding. Inloggen kan alleen online.':e&&e.code==='auth/too-many-requests'?'Te vaak geprobeerd. Wacht even en probeer opnieuw.':'Onjuiste code.')})};
   window.csLogout=function(){try{localStorage.removeItem('cs-gm-concept')}catch(e){}auth.signOut()};
 })();
 </script>
@@ -449,7 +451,7 @@ section.skipped{border-left-color:var(--bad)}
     <datalist id="cxBlokLijst"></datalist>
     <div class="cx-losbtns">
       <button type="button" class="btn primary" id="cxLAdd">Toevoegen &amp; invullen</button>
-      <button type="button" class="btn ghost" id="cxLCancel">Annuleren</button>
+      <button type="button" class="btn ghost" id="cxLCancel">Inklappen</button>
       <span class="cx-losdoel" id="cxLDoel"></span>
     </div>
   </div>
@@ -796,7 +798,7 @@ section.skipped{border-left-color:var(--bad)}
   // los nummer
   function losDoel(){var c=cxCur();$('cxLDoel').textContent='Wordt toegevoegd aan: '+(c?c.naam:LOS);}
   $('cxLosBtn').addEventListener('click',function(){
-    var f=$('cxLos');f.hidden=!f.hidden;if(f.hidden)return;
+    var f=$('cxLos');f.hidden=!f.hidden;losKnop();if(f.hidden)return;
     var c=cxCur(), ref=null;
     if(c&&st.cur)c.adr.forEach(function(a){if(a.id===st.cur)ref=a});
     if(!ref&&c&&c.adr.length)ref=c.adr[0];
@@ -808,14 +810,15 @@ section.skipped{border-left-color:var(--bad)}
     $('cxLNr').value='';$('cxLWt').value='';$('cxLVd').value=(ref&&ref.vd!==undefined&&ref.vd!=='')?ref.vd:'';losDoel();
     setTimeout(function(){$('cxLNr').focus()},30);
   });
-  $('cxLCancel').addEventListener('click',function(){$('cxLos').hidden=true});
+  function losKnop(){var o=!$('cxLos').hidden;$('cxLosBtn').textContent=o?'▴ Los nummer inklappen':'＋ Los nummer';$('cxLosBtn').setAttribute('aria-expanded',o)}
+  $('cxLCancel').addEventListener('click',function(){$('cxLos').hidden=true;losKnop()});
   $('cxLAdd').addEventListener('click',function(){
     var straat=norm($('cxLStraat').value), nr=norm($('cxLNr').value);
     if(!straat||!nr){$('cxHint').textContent='Vul minimaal straat en nummer in voor een los nummer.';$('cxHint').className='pchint';return}
     var c=cxCur();
     if(!c){for(var i=0;i<st.cx.length;i++)if(st.cx[i].naam===LOS)c=st.cx[i];if(!c){c={id:uid(),naam:LOS,adr:[],og:norm(($('opdrachtgever')||{}).value),pnr:norm(($('projectnummer')||{}).value)};st.cx.push(c)}st.sel=c.id}
     var a={id:uid(),straat:straat,nr:nr,pc:fmtPc($('cxLPc').value),plaats:norm($('cxLPlaats').value),wt:norm($('cxLWt').value),bnr:'',blok:norm($('cxLBlok').value),vd:vdNum($('cxLVd').value),pos:'',los:true};
-    c.adr.push(a);$('cxLos').hidden=true;
+    c.adr.push(a);$('cxLos').hidden=true;losKnop();
     if(st.blok&&st.blok!=='*'&&(a.blok||'_')!==st.blok)st.blok='*';
     $('cxZoek').value='';save();apply(a);
   });
