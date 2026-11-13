@@ -339,6 +339,7 @@ select.autoval{border-color:var(--ok)!important;background:color-mix(in srgb,var
 .open-chk input{width:22px;height:22px;accent-color:#B42318;margin:0}
 .open-box textarea{margin-top:8px;width:100%;box-sizing:border-box;display:none}
 .open-box.on textarea{display:block}
+.open-box .open-dic{display:none}.open-box.on .open-dic{display:flex}
 .cx-chip.open{position:relative}
 .cx-chip.open::after{content:'!';position:absolute;top:-7px;right:-7px;width:17px;height:17px;border-radius:50%;background:#B42318;color:#fff;font-size:11px;font-weight:800;line-height:17px;text-align:center;box-shadow:0 0 0 2px #fff}
 .saved .tk{display:inline-block;background:#B42318;color:#fff;font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;margin-left:6px}
@@ -1156,6 +1157,7 @@ section.skipped{border-left-color:var(--bad)}
         <div class="open-box" id="openBox">
           <label class="open-chk"><input type="checkbox" id="openChk" data-k="open"> <span>⚠ Nog niet helemaal af — hier moet ik terugkomen</span></label>
           <textarea id="openTxt" data-k="openTxt" rows="2" placeholder="Wat moet er nog gebeuren? bijv. thermostaat nog aansluiten, radiator slaapkamer 2 vervangen…"></textarea>
+          <div class="dicteer open-dic" id="dicOpen"><button type="button" class="btn b-dic" hidden>🎤 Inspreken</button><button type="button" class="btn b-net">✨ Tekst netjes maken</button><span class="d-st"></span></div>
         </div>
         <button type="button" class="gereed" id="btnGereed"><span class="gi">✕</span><span class="gt">Niet gereed</span></button>
         <p class="gereed-sub" id="gereedSub"></p>
@@ -1167,7 +1169,7 @@ section.skipped{border-left-color:var(--bad)}
       <div class="body">
         <div class="photos" id="photos"></div><div style="margin-top:12px" id="phDlRow" hidden><button class="btn" type="button" id="btnPhDl">Foto's downloaden (ZIP)</button></div>
         <div class="f" style="margin-top:14px"><label for="bijzonderheden">Bijzonderheden</label><textarea id="bijzonderheden" data-k="bijzonderheden" rows="4" placeholder="bijv. thermostaat nog niet aangesloten, lekkage bij afsluiter hersteld, bewoner niet thuis…"></textarea>
-          <div class="dicteer"><button type="button" class="btn" id="btnDicteer" hidden>🎤 Inspreken</button><button type="button" class="btn" id="btnNetjes">✨ Tekst netjes maken</button><span id="dicStat"></span></div></div>
+          <div class="dicteer" id="dicBz"><button type="button" class="btn b-dic" id="btnDicteer" hidden>🎤 Inspreken</button><button type="button" class="btn b-net" id="btnNetjes">✨ Tekst netjes maken</button><span class="d-st" id="dicStat"></span></div></div>
       </div>
     </section>
   </form>
@@ -2046,9 +2048,23 @@ if(window.claude&&claude.use){
 </script>
 <script>
 (function(){
-  var ta=document.getElementById('bijzonderheden'), bD=document.getElementById('btnDicteer'), bN=document.getElementById('btnNetjes'), st=document.getElementById('dicStat');
-  function zet(v){ta.value=v;ta.dispatchEvent(new Event('input',{bubbles:true}))}
-  function netjes(t){
+  var AIKEY='6LfQAR8uAAAAAJ92IGS_2c8AKeWnibbnOLsV6-08', V='12.6.0', MODELS=['gemini-3.8-flash','gemini-3.8-flash','gemini-3.8-flash'], aiP=null;
+  function aiModel(){ if(aiP) return aiP; aiP=(async function(){
+      var A=await import('https://www.gstatic.com/firebasejs/'+V+'/firebase-app.js');
+      var C=await import('https://www.gstatic.com/firebasejs/'+V+'/firebase-app-check.js');
+      var M=await import('https://www.gstatic.com/firebasejs/'+V+'/firebase-ai.js');
+      var app; try{app=A.getApp('gm-ai')}catch(e){app=A.initializeApp(window.FIREBASE_CONFIG||{apiKey:"AIzaSyDs6Y1PAKNURA4lde5Xe6Zr5kZq7iZBzYE",authDomain:"gereedmelding-cv.firebaseapp.com",projectId:"gereedmelding-cv",storageBucket:"gereedmelding-cv.firebasestorage.app",messagingSenderId:"1025814267228",appId:"1:1025814267228:web:ddea0306d6006dd6a96d99"},'gm-ai');
+        C.initializeAppCheck(app,{provider:new C.ReCaptchaEnterpriseProvider(AIKEY),isTokenAutoRefreshEnabled:true})}
+      var ai=M.getAI(app,{backend:new M.GoogleAIBackend()});
+      return function(mod){return M.getGenerativeModel(ai,{model:mod})};
+    })(); aiP.catch(function(){aiP=null}); return aiP; }
+  var PROMPT='Je helpt een installateur van CV- en warmtenetinstallaties. Herschrijf de notitie hieronder (ingesproken of snel getypt) tot nette, zakelijke Nederlandse tekst voor een opleverrapport.\n'
+    +'Regels: behoud alle feiten, maten, nummers, ruimtes en namen; verzin niets en laat niets weg; korte duidelijke zinnen; correcte spelling en hoofdletters; vaktermen goed schrijven (CV, warmtenet, afleverset, energiemeter, inregelen, Heimeier, thermostaat, radiator, voetventiel); '
+    +'woorden als "punt", "komma" en "nieuwe regel" zijn leestekens; geen inleiding, uitleg of aanhalingstekens; meerdere punten mogen als losse regels. Geef alleen de herschreven tekst.\n\nNotitie:\n';
+  async function aiNetjes(t){ var mk=await aiModel(), last=null;
+    for(var i=0;i<MODELS.length;i++){ try{ var r=await mk(MODELS[i]).generateContent(PROMPT+t); var out=String(r.response.text()||'').trim().replace(/^["'“”]+|["'“”]+$/g,''); if(out) return out; }catch(e){ last=e; await new Promise(function(z){setTimeout(z,1200*(i+1))}); } }
+    throw last||new Error('geen antwoord'); }
+  function regels(t){
     t=String(t||'');
     var rep=[[/\s*\bnieuwe (regel|alinea)\b\s*/gi,'\n'],[/\s*\b(punt)\b(?=\s|$)/gi,'.'],[/\s*\bkomma\b/gi,','],[/\s*\bvraagteken\b/gi,'?'],[/\s*\buitroepteken\b/gi,'!'],[/\s*\bdubbele punt\b/gi,':'],[/\s*\bstreepje\b/gi,' -']];
     rep.forEach(function(r){t=t.replace(r[0],r[1])});
@@ -2061,20 +2077,31 @@ if(window.claude&&claude.use){
     t=t.replace(/\bcv\b/gi,'CV').replace(/\bmv\b/gi,'MV').replace(/\bdelta t\b/gi,'ΔT').replace(/\bheimeier\b/gi,'Heimeier');
     return t.trim();
   }
-  bN.addEventListener('click',function(){var o=ta.value;var n=netjes(o);if(!o.trim()){st.textContent='Nog geen tekst.';return}zet(n);st.textContent=n===o?'Tekst was al netjes.':'Tekst netjes gemaakt. Controleer hem even.'});
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){return}
-  bD.hidden=false; var rec=null, aan=false, basis='';
-  function stop(){aan=false;try{rec&&rec.stop()}catch(e){}bD.classList.remove('rec');bD.textContent='🎤 Inspreken'}
-  function start(){
-    rec=new SR(); rec.lang='nl-NL'; rec.continuous=true; rec.interimResults=true;
-    basis=ta.value?ta.value.replace(/\s*$/,' '):'';
-    rec.onresult=function(e){var vast='',tus='';for(var i=0;i<e.results.length;i++){var r=e.results[i];if(r.isFinal)vast+=r[0].transcript+' ';else tus+=r[0].transcript}
-      ta.value=basis+vast+tus;ta.dispatchEvent(new Event('input',{bubbles:true}))};
-    rec.onerror=function(e){st.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?'Geen toegang tot de microfoon. Sta de microfoon toe in je browser.':e.error==='no-speech'?'Niets gehoord.':'Inspreken gestopt ('+e.error+').';if(e.error==='not-allowed'||e.error==='service-not-allowed')stop()};
-    rec.onend=function(){if(aan){basis=ta.value?ta.value.replace(/\s*$/,' '):'';try{rec.start()}catch(e){stop()}}else{zet(netjes(ta.value));st.textContent='Ingesproken tekst netjes gemaakt.'}};
-    try{rec.start();aan=true;bD.classList.add('rec');bD.textContent='⏹ Stop inspreken';st.textContent='Praat maar… zeg "punt", "komma" of "nieuwe regel" voor leestekens.'}catch(e){st.textContent='Inspreken lukt niet op dit apparaat.'}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, actief=null;
+  function setup(taId,barId){
+    var ta=document.getElementById(taId), bar=document.getElementById(barId); if(!ta||!bar) return;
+    var bD=bar.querySelector('.b-dic'), bN=bar.querySelector('.b-net'), st=bar.querySelector('.d-st');
+    function zet(v){ta.value=v;ta.dispatchEvent(new Event('input',{bubbles:true}))}
+    async function netjes(auto){ var o=ta.value; if(!o.trim()){ if(!auto) st.textContent='Nog geen tekst.'; return; }
+      bN.disabled=true; st.textContent='Tekst wordt netjes gemaakt…';
+      try{ var n=await aiNetjes(o); if(ta.value===o){ zet(n); st.textContent='✓ Netjes gemaakt. Controleer hem even.'; } }
+      catch(e){ var n2=regels(o); if(ta.value===o) zet(n2); st.textContent='AI is even niet bereikbaar; met vaste regels opgeschoond. Probeer later nog eens voor een betere tekst.'; }
+      bN.disabled=false; }
+    bN.addEventListener('click',function(){netjes(false)});
+    if(!SR) return; bD.hidden=false; var rec=null, aan=false, basis='';
+    function stop(){aan=false;try{rec&&rec.stop()}catch(e){}bD.classList.remove('rec');bD.textContent='🎤 Inspreken';if(actief===stop)actief=null}
+    function start(){ if(actief) actief();
+      rec=new SR(); rec.lang='nl-NL'; rec.continuous=true; rec.interimResults=true;
+      basis=ta.value?ta.value.replace(/\s*$/,' '):'';
+      rec.onresult=function(e){var vast='',tus='';for(var i=0;i<e.results.length;i++){var r=e.results[i];if(r.isFinal)vast+=r[0].transcript+' ';else tus+=r[0].transcript}
+        ta.value=basis+vast+tus;ta.dispatchEvent(new Event('input',{bubbles:true}))};
+      rec.onerror=function(e){st.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?'Geen toegang tot de microfoon. Sta de microfoon toe in je browser.':e.error==='no-speech'?'Niets gehoord.':'Inspreken gestopt ('+e.error+').';if(e.error==='not-allowed'||e.error==='service-not-allowed')stop()};
+      rec.onend=function(){if(aan){basis=ta.value?ta.value.replace(/\s*$/,' '):'';try{rec.start()}catch(e){stop()}}else{netjes(true)}};
+      try{rec.start();aan=true;actief=stop;bD.classList.add('rec');bD.textContent='⏹ Stop inspreken';st.textContent='Praat maar… druk op Stop als je klaar bent.'}catch(e){st.textContent='Inspreken lukt niet op dit apparaat.'}
+    }
+    bD.addEventListener('click',function(){aan?stop():start()});
   }
-  bD.addEventListener('click',function(){aan?stop():start()});
+  setup('bijzonderheden','dicBz'); setup('openTxt','dicOpen');
 })();
 </script>
 <style>.dt-row{display:flex;gap:8px;align-items:stretch}.dt-row input{flex:1 1 auto;min-width:0}.dt-today{white-space:nowrap}</style>
