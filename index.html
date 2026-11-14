@@ -370,6 +370,13 @@ select.autoval{border-color:var(--ok)!important;background:color-mix(in srgb,var
 .dicteer .btn.rec{background:#B42318;color:#fff;border-color:#B42318;animation:recp 1.2s infinite}
 @keyframes recp{50%{opacity:.75}}
 .dicteer span{font-size:12px;color:var(--muted)}
+.bin{padding:10px 16px;border-bottom:1px solid var(--line);background:#FBF6F1}
+.bin h4{margin:0 0 8px;font-size:14px}.bin h4 small{font-weight:400;color:var(--muted);font-size:12px;margin-left:6px}
+.rstp{display:inline-flex;align-items:stretch;gap:2px;width:100%}
+.rstp input{flex:1 1 auto;min-width:0}
+.rstp .rs-b{display:flex;flex-direction:column;gap:1px;flex:none}
+.rstp .rs-b button{width:24px;flex:1;min-height:17px;padding:0;border:1px solid var(--line-strong);background:var(--surface);border-radius:3px;font-size:9px;line-height:1;cursor:pointer;color:var(--text);touch-action:manipulation}
+.rcard .rstp .rs-b{flex-direction:row}.rcard .rstp .rs-b button{width:38px;font-size:13px}
 .rtpl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:8px;background:var(--field)}
 .rtpl-t{font-size:12.5px;color:var(--muted);margin-right:auto}
 .rtpl-ask{flex-basis:100%;font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1399,7 +1406,7 @@ const tplFrom=rads=>rads.filter(r=>r&&!r.skip&&(String(r.ruimte||'').trim()||r.a
 const tplRads=()=>RADTPL&&RADTPL.length?JSON.parse(JSON.stringify(RADTPL)):[blankRad()];
 function blank(){
   return {id:null, inspecteur:DEF_NAAM, monteur:DEF_NAAM, datumInspectie:today(), datumGereed:today(), afpersduur:'', aansluiting:'Appartement, Renovatie', cwKlasse:'CW3', ontwerpA:'70', ontwerpR:'40', isoNiv:'C', ligging:'app', m2:{},
-    schadeFotos:[], rads:tplRads(), vis:{inlaat:'nee',lekkage:'nee',ontlucht:'ja',bypass:'nee'}, bypassStand:'', sig:(function(){try{return localStorage.getItem('cs-paraaf')||''}catch(e){return ''}})(), photos:[]};
+    schadeFotos:[], rads:tplRads(), vis:{inlaat:'nvt',lekkage:'nee',ontlucht:'ja',bypass:'nvt'}, bypassStand:'', sig:(function(){try{return localStorage.getItem('cs-paraaf')||''}catch(e){return ''}})(), photos:[]};
 }
 let S = blank();
 let db = null, downloads = null, dirty = false;
@@ -1913,6 +1920,15 @@ $('#btnGereed').addEventListener('click',async()=>{
   if(ok) say(S.afgerond?`✓ ${S.straat} ${S.huisnummer} is gereed gemeld.`:`Gereedmelding van ${S.straat} ${S.huisnummer} ongedaan gemaakt.`);
   else { S.afgerond=!S.afgerond; S.afgerondOp=S.afgerond?Date.now():null; }
   gereedUI(); b.disabled=false; });
+
+/* ---------- pijltjes A-temp / R-temp ---------- */
+function radStappers(root){ root.querySelectorAll('input[data-rk="aTemp"],input[data-rk="rTemp"]').forEach(inp=>{ if(inp.parentElement.classList.contains('rstp')) return;
+    const w=document.createElement('span'); w.className='rstp'; inp.parentNode.insertBefore(w,inp); w.appendChild(inp);
+    const bx=document.createElement('span'); bx.className='rs-b'; bx.innerHTML='<button type="button" data-st="1" aria-label="1 graad hoger">▲</button><button type="button" data-st="-1" aria-label="1 graad lager">▼</button>'; w.appendChild(bx); }); }
+document.addEventListener('click',e=>{ const b=e.target.closest('.rstp [data-st]'); if(!b) return; const inp=b.closest('.rstp').querySelector('input'); if(!inp) return;
+  const isA=inp.dataset.rk==='aTemp'; let v=parseFloat(String(inp.value).replace(',','.')); if(!isFinite(v)) v=parseFloat(String(isA?S.ontwerpA:S.ontwerpR).replace(',','.'))||(isA?70:40); else v+=(+b.dataset.st);
+  inp.value=String(Math.round(v*10)/10).replace('.',','); inp.dispatchEvent(new Event('input',{bubbles:true})); inp.dispatchEvent(new Event('change',{bubbles:true})); });
+['#rbody','#rlist'].forEach(sel=>{ const el=$(sel); if(el){ new MutationObserver(()=>radStappers(el)).observe(el,{childList:true}); radStappers(el); } });
 
 window.csNewForAddress=async(straat,nr)=>{
   const same=String(S.straat||'').trim()===String(straat||'').trim() && String(S.huisnummer||'').trim()===String(nr||'').trim();
