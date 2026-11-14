@@ -344,6 +344,21 @@ select.autoval{border-color:var(--ok)!important;background:color-mix(in srgb,var
 .cx-chip.open::after{content:'!';position:absolute;top:-7px;right:-7px;width:17px;height:17px;border-radius:50%;background:#B42318;color:#fff;font-size:11px;font-weight:800;line-height:17px;text-align:center;box-shadow:0 0 0 2px #fff}
 .saved .tk{display:inline-block;background:#B42318;color:#fff;font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;margin-left:6px}
 .saved .tkt{display:block;color:#B42318;font-size:12.5px;margin-top:2px}
+.schade-box{margin-top:14px}
+.schade-box.on{border-color:#C2410C;background:#FFF1E6}
+.schade-box .open-chk input{accent-color:#C2410C}
+.schade-in{display:none;margin-top:8px}.schade-box.on .schade-in{display:block}
+.schade-in textarea{display:block;width:100%;box-sizing:border-box;margin-top:8px}
+.schade-note{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.cx-chip.schade::before{content:'S';position:absolute;top:-7px;left:-7px;width:17px;height:17px;border-radius:50%;background:#C2410C;color:#fff;font-size:10px;font-weight:800;line-height:17px;text-align:center;box-shadow:0 0 0 2px #fff;z-index:1}
+.cx-chip.schade{position:relative}
+.saved .sk{display:inline-block;background:#C2410C;color:#fff;font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;margin-left:6px}
+.logl{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
+.logl li{padding:8px 10px;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:6px;background:var(--field);font-size:13.5px;white-space:pre-wrap}
+.logl li small{display:block;color:var(--muted);font-size:11.5px;margin-bottom:2px}
+.logl li button{float:right;border:0;background:none;color:var(--muted);cursor:pointer;font:inherit;font-size:12px;text-decoration:underline}
+#logTxt{width:100%;box-sizing:border-box}
+.rol-monteur #ontwerpA,.rol-monteur #ontwerpR{background:var(--line);color:var(--muted)}
 .snfoto{display:flex;align-items:center;gap:10px;margin-top:8px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--field)}
 .sn-th{border:0;padding:0;background:none;cursor:zoom-in;flex:none}.sn-th img{width:64px;height:48px;object-fit:cover;border-radius:4px;display:block}
 .sn-t{font-size:12.5px;font-weight:600;display:flex;flex-direction:column;flex:1}.sn-t small{font-weight:400;color:var(--muted)}
@@ -478,7 +493,7 @@ section.skipped{border-left-color:var(--bad)}
     </div>
   </div>
   <div class="cx-nrs" id="cxNrs"></div>
-  <div class="cx-legend" id="cxLegend" hidden><span><i></i>nog te doen</span><span><i style="outline:2px solid #1D1D1B;outline-offset:1px"></i>huidige woning</span><span><i class="d"></i>radiatoren ingevuld</span><span><i class="a"></i>afgerond ✓</span><span><i style="background:#B42318;border-color:#B42318;border-radius:50%"></i>terugkomen</span></div>
+  <div class="cx-legend" id="cxLegend" hidden><span><i></i>nog te doen</span><span><i style="outline:2px solid #1D1D1B;outline-offset:1px"></i>huidige woning</span><span><i class="d"></i>radiatoren ingevuld</span><span><i class="a"></i>afgerond ✓</span><span><i style="background:#B42318;border-color:#B42318;border-radius:50%"></i>terugkomen</span><span><i style="background:#C2410C;border-color:#C2410C;border-radius:50%"></i>schade gezien</span></div>
   <div class="cx-beheer k-only" id="cxBeheer" hidden>
     <button type="button" id="cxDel">complex verwijderen</button>
   </div>
@@ -641,7 +656,7 @@ section.skipped{border-left-color:var(--bad)}
       var sv0=svMap.get(a.straat.trim().toLowerCase()+'|'+String(a.nr||'').trim().toLowerCase().replace(/\s+/g,''));
       var sv=sv0&&(sv0.rad||sv0.afgerond)?sv0:null;
       if(sv)nDone++;
-      return '<button type="button" class="'+cls+(a.id===st.cur?' on':'')+(a.los?' los':'')+(sv?' done':'')+(sv&&sv.afgerond?' af':'')+(sv0&&sv0.open?' open':'')+'" data-id="'+a.id+'"'+(extra||'')+' title="'+esc((sv0&&sv0.open?'⚠ Terugkomen'+(sv0.openTxt?': '+sv0.openTxt:'')+' — ':'')+a.straat+' '+a.nr+(a.vd!==undefined&&a.vd!==''?' · '+vdLbl(a.vd):'')+(a.pc?' · '+a.pc:'')+(a.bnr?' · bnr '+a.bnr:'')+(sv?(sv.afgerond?' · afgerond':' · radiatoren ingevuld'):(sv0?' · melding gestart, nog geen radiatoren':'')))+'">'+esc(a.nr||'–')+(sv&&sv.afgerond?' ✓':'')+'</button>';
+      return '<button type="button" class="'+cls+(a.id===st.cur?' on':'')+(a.los?' los':'')+(sv?' done':'')+(sv&&sv.afgerond?' af':'')+(sv0&&sv0.open?' open':'')+(sv0&&sv0.schade?' schade':'')+'" data-id="'+a.id+'"'+(extra||'')+' title="'+esc((sv0&&sv0.open?'⚠ Terugkomen'+(sv0.openTxt?': '+sv0.openTxt:'')+' — ':'')+a.straat+' '+a.nr+(a.vd!==undefined&&a.vd!==''?' · '+vdLbl(a.vd):'')+(a.pc?' · '+a.pc:'')+(a.bnr?' · bnr '+a.bnr:'')+(sv?(sv.afgerond?' · afgerond':' · radiatoren ingevuld'):(sv0?' · melding gestart, nog geen radiatoren':'')))+'">'+esc(a.nr||'–')+(sv&&sv.afgerond?' ✓':'')+'</button>';
     }
     // groepeer per blok
     var groepen=[], gmap={};
@@ -1153,7 +1168,7 @@ section.skipped{border-left-color:var(--bad)}
         </div>
         <div class="f"><label>Handtekening monteur <small>— teken met vinger of muis</small></label></div>
         <div class="sigwrap" style="margin-top:4px"><canvas id="sig" aria-label="Handtekeningvlak"></canvas><span class="ph" id="sigPh">Hier tekenen</span></div>
-        <div class="sigtools"><button class="btn ghost" type="button" id="sigClear">Wissen</button></div>
+        <div class="sigtools"><button class="btn ghost" type="button" id="sigClear">Wissen</button><button class="btn ghost" type="button" id="parSave">Als mijn standaard paraaf opslaan</button><button class="btn ghost" type="button" id="parUse" hidden>Standaard paraaf zetten</button></div>
         <div class="open-box" id="openBox">
           <label class="open-chk"><input type="checkbox" id="openChk" data-k="open"> <span>⚠ Nog niet helemaal af — hier moet ik terugkomen</span></label>
           <textarea id="openTxt" data-k="openTxt" rows="2" placeholder="Wat moet er nog gebeuren? bijv. thermostaat nog aansluiten, radiator slaapkamer 2 vervangen…"></textarea>
@@ -1164,10 +1179,30 @@ section.skipped{border-left-color:var(--bad)}
       </div>
     </section>
 
+    <section class="blk k-only" id="logBlk">
+      <h2>📒 Logboek (alleen kantoor)</h2>
+      <div class="body">
+        <p class="schade-note" id="logInfo">Houd hier bij wat er in deze woning is gebeurd. Alleen kantoor ziet dit; het komt niet in het rapport.</p>
+        <ul class="logl" id="logList"></ul>
+        <textarea id="logTxt" rows="2" placeholder="Nieuwe aantekening, bijv. bewoner gebeld, afspraak dinsdag 10:00…"></textarea>
+        <div class="dicteer" id="dicLog"><button type="button" class="btn b-dic" hidden>🎤 Inspreken</button><button type="button" class="btn b-net">✨ Tekst netjes maken</button><button type="button" class="btn primary" id="logAdd">＋ Toevoegen aan logboek</button><span class="d-st"></span></div>
+      </div>
+    </section>
+
     <section class="blk">
       <h2>Foto's &amp; bijzonderheden</h2>
       <div class="body">
-        <div class="photos" id="photos"></div><div style="margin-top:12px" id="phDlRow" hidden><button class="btn" type="button" id="btnPhDl">Foto's downloaden (ZIP)</button></div>
+        <div class="photos" id="photos"></div>
+        <div class="open-box schade-box" id="schadeBox">
+          <label class="open-chk"><input type="checkbox" id="schadeChk" data-k="schade"> <span>🔶 Schade of spullen in de weg gezien</span></label>
+          <div class="schade-in">
+            <p class="schade-note">Deze foto's en opmerking komen <b>niet</b> in het rapport, wel bij de foto's die je downloadt.</p>
+            <div class="photos" id="schadePhotos"></div>
+            <textarea id="schadeTxt" data-k="schadeTxt" rows="2" placeholder="Wat is er gezien? bijv. kras op laminaat in de hal, kast voor de verdeler…"></textarea>
+            <div class="dicteer" id="dicSchade"><button type="button" class="btn b-dic" hidden>🎤 Inspreken</button><button type="button" class="btn b-net">✨ Tekst netjes maken</button><span class="d-st"></span></div>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="phDlRow" hidden><button class="btn" type="button" id="btnPhDl">Foto's downloaden (ZIP)</button></div>
         <div class="f" style="margin-top:14px"><label for="bijzonderheden">Bijzonderheden</label><textarea id="bijzonderheden" data-k="bijzonderheden" rows="4" placeholder="bijv. thermostaat nog niet aangesloten, lekkage bij afsluiter hersteld, bewoner niet thuis…"></textarea>
           <div class="dicteer" id="dicBz"><button type="button" class="btn b-dic" id="btnDicteer" hidden>🎤 Inspreken</button><button type="button" class="btn b-net" id="btnNetjes">✨ Tekst netjes maken</button><span class="d-st" id="dicStat"></span></div></div>
       </div>
@@ -1364,7 +1399,7 @@ const tplFrom=rads=>rads.filter(r=>r&&!r.skip&&(String(r.ruimte||'').trim()||r.a
 const tplRads=()=>RADTPL&&RADTPL.length?JSON.parse(JSON.stringify(RADTPL)):[blankRad()];
 function blank(){
   return {id:null, inspecteur:DEF_NAAM, monteur:DEF_NAAM, datumInspectie:today(), datumGereed:today(), afpersduur:'', aansluiting:'Appartement, Renovatie', cwKlasse:'CW3', ontwerpA:'70', ontwerpR:'40', isoNiv:'C', ligging:'app', m2:{},
-    rads:tplRads(), vis:{inlaat:'nee',lekkage:'nee',ontlucht:'ja',bypass:'nee'}, bypassStand:'', sig:'', photos:[]};
+    schadeFotos:[], rads:tplRads(), vis:{inlaat:'nee',lekkage:'nee',ontlucht:'ja',bypass:'nee'}, bypassStand:'', sig:(function(){try{return localStorage.getItem('cs-paraaf')||''}catch(e){return ''}})(), photos:[]};
 }
 let S = blank();
 let db = null, downloads = null, dirty = false;
@@ -1376,7 +1411,7 @@ function fillFields(){
   if(S.adres && !S.straat && !S.huisnummer){ const m=String(S.adres).match(/^(.*?)\s+(\d+\S*(?:\s*[a-zA-Z])?)$/); if(m){S.straat=m[1];S.huisnummer=m[2];} else S.straat=S.adres; }
   document.querySelectorAll('select[data-k]').forEach(el => { const v=S[el.dataset.k]; if(v && ![...el.options].some(o=>o.value===v)){ const o=document.createElement('option'); o.textContent=v; el.appendChild(o); } });
   document.querySelectorAll('[data-k]').forEach(el => { if(el.type==='checkbox') el.checked=!!S[el.dataset.k]; else el.value = S[el.dataset.k] ?? ''; });
-  renderRads(); S.rads.forEach((r,i)=>recalc(i,false)); totals(); renderVis(); renderPhotos(); renderSN(); openUI(); loadSig(); updateStatus();
+  renderRads(); S.rads.forEach((r,i)=>recalc(i,false)); totals(); renderVis(); renderPhotos(); renderSN(); openUI(); schadeUI(); loadSig(); parUI(); rolUI(); logLoad(); updateStatus();
 }
 document.querySelectorAll('[data-k]').forEach(el => {
   el.addEventListener('input', () => { S[el.dataset.k] = el.type==='checkbox' ? el.checked : el.value;
@@ -1388,6 +1423,32 @@ document.querySelectorAll('[data-k]').forEach(el => {
 /* ---------- nog niet af ---------- */
 function openUI(){ const c=$('#openChk'); c.checked=!!S.open; $('#openBox').classList.toggle('on',!!S.open); }
 $('#openChk').addEventListener('change',()=>{ S.open=$('#openChk').checked; if(S.open&&S.afgerond){ say('Let op: deze woning staat ook op gereed.'); } openUI(); if(S.open) setTimeout(()=>$('#openTxt').focus(),50); touch(); });
+/* ---------- schade ---------- */
+function schadeUI(){ $('#schadeChk').checked=!!S.schade; $('#schadeBox').classList.toggle('on',!!S.schade); renderSchade(); }
+function renderSchade(){ const sf=S.schadeFotos||(S.schadeFotos=[]);
+  $('#schadePhotos').innerHTML = sf.map((p,i)=>`<div class="ph-item"><img src="${p}" alt="Schadefoto ${i+1}"><button type="button" data-sdel="${i}">Verwijder</button></div>`).join('')
+   + (sf.length<8 ? `<label class="ph-add"><span class="plus">📷</span>Foto maken<input type="file" accept="image/*" capture="environment" class="schIn"></label><label class="ph-add"><span class="plus">＋</span>Uit fotoalbum<input type="file" accept="image/*" multiple class="schIn"></label>` : '');
+  $('#schadePhotos').querySelectorAll('.schIn').forEach(inp=>inp.addEventListener('change',async()=>{ for(const f of [...inp.files].slice(0,8-sf.length)){ try{ sf.push(await shrink(f)); }catch(e){ say('Een foto kon niet worden geopend.'); } } renderSchade(); renderPhotos(); touch(); }));
+}
+$('#schadePhotos').addEventListener('click',e=>{const b=e.target.closest('[data-sdel]'); if(!b)return; S.schadeFotos.splice(+b.dataset.sdel,1); renderSchade(); renderPhotos(); touch();});
+$('#schadeChk').addEventListener('change',()=>{ S.schade=$('#schadeChk').checked; schadeUI(); touch(); });
+/* ---------- standaard paraaf ---------- */
+function parUI(){ let p=''; try{p=localStorage.getItem('cs-paraaf')||''}catch(e){} $('#parUse').hidden=!p||S.sig===p; }
+$('#parSave').addEventListener('click',()=>{ if(!S.sig){ say('Zet eerst je paraaf in het vak.'); return; } try{ localStorage.setItem('cs-paraaf',S.sig); say('Paraaf opgeslagen als standaard op dit apparaat. Nieuwe meldingen krijgen hem automatisch.'); }catch(e){ say('Opslaan van de paraaf lukte niet.'); } parUI(); });
+$('#parUse').addEventListener('click',()=>{ try{ S.sig=localStorage.getItem('cs-paraaf')||''; }catch(e){} loadSig(); touch(); parUI(); });
+/* ---------- logboek (kantoor) ---------- */
+let logItems=[], logFor=null;
+function logRender(){ const ul=$('#logList');
+  if(!S.id){ ul.innerHTML='<li><small>Logboek</small>Sla de melding eerst op (kies een adres); daarna kun je aantekeningen toevoegen.</li>'; return; }
+  ul.innerHTML = logItems.length ? logItems.slice().reverse().map((it,ri)=>{ const i=logItems.length-1-ri; return `<li><button type="button" data-ldel="${i}">verwijder</button><small>${esc(new Date(it.t).toLocaleString('nl-NL',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))}</small>${esc(it.tekst)}</li>`; }).join('') : '<li><small>Logboek</small>Nog geen aantekeningen.</li>'; }
+async function logLoad(){ if(window.csRole!=='kantoor'||!db){ return; } const id=S.id; logFor=id; logItems=[]; logRender(); if(!id) return;
+  try{ const d=(await db.doc('logboek/'+id).get()).data(); if(logFor!==id) return; logItems=(d&&d.items)||[]; }catch(e){ $('#logInfo').textContent='Logboek laden mislukt ('+(e.code||e.message)+').'; } logRender(); }
+async function logSave(){ const id=S.id; await db.doc('logboek/'+id).set({melding:id, adres:[S.straat,S.huisnummer].filter(Boolean).join(' '), items:logItems, updatedAt:Date.now()}); }
+$('#logAdd').addEventListener('click',async()=>{ const t=$('#logTxt').value.trim(); if(!t) return; if(!S.id){ if(hasAdr()) await save(true); if(!S.id){ say('Kies eerst een adres.'); return; } }
+  logItems.push({t:Date.now(), tekst:t}); try{ await logSave(); $('#logTxt').value=''; say('Toegevoegd aan het logboek.'); }catch(e){ logItems.pop(); say('Logboek opslaan mislukt ('+(e.code||e.message)+').'); } logRender(); });
+$('#logList').addEventListener('click',async e=>{ const b=e.target.closest('[data-ldel]'); if(!b) return; if(!b.dataset.arm){ b.dataset.arm=1; b.textContent='zeker?'; return; }
+  const it=logItems.splice(+b.dataset.ldel,1); try{ await logSave(); }catch(err){ logItems.splice(+b.dataset.ldel,0,...it); say('Verwijderen mislukt.'); } logRender(); });
+function rolUI(){ const k=window.csRole==='kantoor'; ['#ontwerpA','#ontwerpR'].forEach(sel=>{ const el=$(sel); if(el){ el.readOnly=!k; el.title=k?'':'Alleen kantoor kan de ontwerptemperatuur aanpassen'; } }); }
 /* ---------- adres bij postcode (BAG) ---------- */
 let lastAutoStraat='', lastAutoPlaats='';
 function pcHint(t,ok){ const h=$('#pcHint'); h.textContent=t||''; h.hidden=!t; h.className='pchint'+(ok?' ok':''); }
@@ -1535,7 +1596,7 @@ function loadSig(){ const r=cv.getBoundingClientRect(); ctx.clearRect(0,0,r.widt
 const pos=e=>{const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
 cv.addEventListener('pointerdown',e=>{drawing=true;cv.setPointerCapture(e.pointerId);const [x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+.1,y+.1);ctx.stroke();$('#sigPh').hidden=true;});
 cv.addEventListener('pointermove',e=>{if(!drawing)return;const [x,y]=pos(e);ctx.lineTo(x,y);ctx.stroke();});
-const endSig=()=>{ if(!drawing) return; drawing=false; hasInk=true; S.sig=cv.toDataURL('image/png'); touch(); };
+const endSig=()=>{ if(!drawing) return; drawing=false; hasInk=true; S.sig=cv.toDataURL('image/png'); touch(); parUI(); };
 cv.addEventListener('pointerup',endSig); cv.addEventListener('pointercancel',endSig);
 $('#sigClear').addEventListener('click',()=>{S.sig='';loadSig();touch();});
 window.addEventListener('resize',()=>{ clearTimeout(sizeSig.t); sizeSig.t=setTimeout(sizeSig,150); });
@@ -1543,12 +1604,15 @@ window.addEventListener('resize',()=>{ clearTimeout(sizeSig.t); sizeSig.t=setTim
 /* ---------- foto's ---------- */
 /* ---------- foto's downloaden ---------- */
 const safeName=s=>String(s||'').replace(/[\\/:*?"<>|\n\r\t]/g,' ').replace(/\s+/g,' ').trim();
-function addPhotos(X, target){ const ph=X.photos||[];
-  ph.forEach((d,i)=>{ const ext=/^data:image\/png/.test(d)?'png':'jpg'; target.file(`Foto ${String(i+1).padStart(2,'0')}.${ext}`, String(d).split(',')[1], {base64:true}); }); return ph.length; }
+function addPhotos(X, target){ const ph=X.photos||[], sf=X.schadeFotos||[];
+  ph.forEach((d,i)=>{ const ext=/^data:image\/png/.test(d)?'png':'jpg'; target.file(`Foto ${String(i+1).padStart(2,'0')}.${ext}`, String(d).split(',')[1], {base64:true}); });
+  sf.forEach((d,i)=>{ const ext=/^data:image\/png/.test(d)?'png':'jpg'; target.file(`Schade ${String(i+1).padStart(2,'0')}.${ext}`, String(d).split(',')[1], {base64:true}); });
+  if(X.schade&&String(X.schadeTxt||'').trim()) target.file('Schade - opmerking.txt', String(X.schadeTxt));
+  return ph.length+sf.length; }
 $('#btnPhDl').addEventListener('click',async()=>{
   if(!window.JSZip){ say('ZIP-module niet geladen. Controleer je verbinding en herlaad.'); return; }
   if(!downloads){ say('Downloaden is in deze weergave niet beschikbaar.'); return; }
-  if(!(S.photos&&S.photos.length)){ say('Er zijn nog geen foto\'s.'); return; }
+  if(!((S.photos&&S.photos.length)||(S.schadeFotos&&S.schadeFotos.length))){ say('Er zijn nog geen foto\'s.'); return; }
   const b=$('#btnPhDl'); b.disabled=true; say('Foto\'s inpakken…');
   try{ const zip=new JSZip(); const n=addPhotos(S,zip); const blob=await zip.generateAsync({type:'blob'});
     const adr=[S.straat,S.huisnummer].map(x=>String(x||'').trim()).filter(Boolean).join(' ')||S.adres||'Gereedmelding';
@@ -1558,7 +1622,7 @@ $('#btnPhDl').addEventListener('click',async()=>{
   b.disabled=false; });
 
 function renderPhotos(){
-  { const r=document.getElementById('phDlRow'); if(r) r.hidden=!(S.photos&&S.photos.length); }
+  { const r=document.getElementById('phDlRow'); if(r) r.hidden=!((S.photos&&S.photos.length)||(S.schadeFotos&&S.schadeFotos.length)); }
   $('#photos').innerHTML = S.photos.map((p,i)=>`<div class="ph-item"><img src="${p}" alt="Foto ${i+1}"><button type="button" data-pdel="${i}">Verwijder</button></div>`).join('')
    + (S.photos.length<6 ? `<label class="ph-add"><span class="plus">📷</span>Foto maken<input type="file" accept="image/*" capture="environment" id="photoCam" aria-label="Foto maken met camera"></label><label class="ph-add"><span class="plus">＋</span>Uit fotoalbum<input type="file" accept="image/*" multiple id="photoIn"></label>` : '');
   ['#photoIn','#photoCam'].forEach(sel=>{ const inp=$(sel); inp && inp.addEventListener('change',async()=>{ for(const f of [...inp.files].slice(0,6-S.photos.length)){ try{ S.photos.push(await shrink(f)); }catch(e){ say('Een foto kon niet worden geopend.'); } } renderPhotos(); touch(); }); });
@@ -1586,7 +1650,7 @@ let saving=false, saveAgain=false, rev=0, autoT=null; const savedPh={};
 const adrKey=(st,nr)=>String(st||'').trim().toLowerCase()+'|'+String(nr||'').trim().toLowerCase().replace(/\s+/g,'');
 window.csSaved=new Map();
 const hasRads=x=>(x.rads||[]).some(r=>r&&(r.skip||['ruimte','vermogen','debiet','aTemp','rTemp','accL'].some(k=>String(r[k]??'').trim())));
-function setSavedFrom(list){ const m=new Map(); list.forEach(x=>{ if(String(x.straat||'').trim()){ const k=adrKey(x.straat,x.huisnummer); if(!m.has(k)) m.set(k,{afgerond:!!x.afgerond,op:x.afgerondOp||null,rad:hasRads(x),open:!!x.open,openTxt:x.openTxt||'',id:x._id||x.id}); } }); window.csSaved=m; if(window.csCxRender) window.csCxRender(); }
+function setSavedFrom(list){ const m=new Map(); list.forEach(x=>{ if(String(x.straat||'').trim()){ const k=adrKey(x.straat,x.huisnummer); if(!m.has(k)) m.set(k,{afgerond:!!x.afgerond,op:x.afgerondOp||null,rad:hasRads(x),open:!!x.open,openTxt:x.openTxt||'',schade:!!x.schade,id:x._id||x.id}); } }); window.csSaved=m; if(window.csCxRender) window.csCxRender(); }
 async function refreshSaved(){ if(!db) return; try{ const snap=await db.collection('meldingen').orderBy('updatedAt','desc').limit(2000).get(); setSavedFrom(snap.docs.map(d=>Object.assign({_id:d.id},d.data()||{}))); }catch(e){} }
 const hasAdr=()=>!!(String(S.straat||'').trim()&&String(S.huisnummer||'').trim());
 async function save(auto){
@@ -1599,15 +1663,18 @@ async function save(auto){
   const startRev=rev; let ok=false;
   try{
     if(!S.id) S.id=uid();
-    const id=S.id, {photos, ...main} = S;
-    const old = S._photoCount||0;
+    const id=S.id, {photos, schadeFotos, ...main} = S;
+    const old = S._photoCount||0, sf=schadeFotos||[], oldS=S._schadeCount||0;
+    for(let i=0;i<sf.length;i++){ const k=id+'-s'+i; if(savedPh[k]===sf[i]) continue; await db.doc(`fotos/${k}`).set({melding:id, i, schade:true, data:sf[i]}); savedPh[k]=sf[i]; }
+    for(let i=sf.length;i<oldS;i++) { try{ await db.doc(`fotos/${id}-s${i}`).delete(); delete savedPh[id+'-s'+i]; }catch(e){} }
+    main.schadeCount = sf.length; delete main._schadeCount;
     for(let i=0;i<photos.length;i++){ const k=id+'-'+i; if(savedPh[k]===photos[i]) continue; await db.doc(`fotos/${k}`).set({melding:id, i, data:photos[i]}); savedPh[k]=photos[i]; }
     for(let i=photos.length;i<old;i++) { try{ await db.doc(`fotos/${id}-${i}`).delete(); delete savedPh[id+'-'+i]; }catch(e){} }
     main.photoCount = photos.length; main.updatedAt = Date.now(); delete main._photoCount;
     await db.doc(`meldingen/${id}`).set(main);
-    if(S.id===id){ S._photoCount = photos.length; dirty = rev!==startRev; }
-    updateStatus(); rememberGen(); ok=true;
-    if(String(main.straat||'').trim()){ window.csSaved.set(adrKey(main.straat,main.huisnummer),{afgerond:!!main.afgerond,op:main.afgerondOp||null,rad:hasRads(main),open:!!main.open,openTxt:main.openTxt||'',id}); if(window.csCxRender) window.csCxRender(); }
+    if(S.id===id){ S._photoCount = photos.length; S._schadeCount = sf.length; dirty = rev!==startRev; }
+    updateStatus(); rememberGen(); ok=true; if(logFor!==S.id) logLoad();
+    if(String(main.straat||'').trim()){ window.csSaved.set(adrKey(main.straat,main.huisnummer),{afgerond:!!main.afgerond,op:main.afgerondOp||null,rad:hasRads(main),open:!!main.open,openTxt:main.openTxt||'',schade:!!main.schade,id}); if(window.csCxRender) window.csCxRender(); }
     say((auto?'Automatisch opgeslagen om ':'Opgeslagen om ')+new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})+'.');
     if(!$('#drawer').hidden) loadList();
   }catch(e){ say((auto?'Automatisch opslaan':'Opslaan')+' mislukt ('+(e.code||e.message)+'). Je gegevens staan nog in het formulier.'); }
@@ -1625,10 +1692,10 @@ function mAdr(m){ return [m.straat,m.huisnummer].map(x=>String(x||'').trim()).fi
 function renderList(){
   const q=$('#zoek').value.trim().toLowerCase(), ul=$('#savedList');
   if(!listCache.length){ ul.innerHTML='<li class="empty">Nog geen meldingen opgeslagen.</li>'; syncSel(); return; }
-  const rows=listCache.filter(m=>!q || [mAdr(m),m.postcode,m.projectnaam,m.projectnummer,m.opdrachtgever,m.monteur,m.woningtype,m.open?'terugkomen '+(m.openTxt||''):''].join(' ').toLowerCase().includes(q));
+  const rows=listCache.filter(m=>!q || [mAdr(m),m.postcode,m.projectnaam,m.projectnummer,m.opdrachtgever,m.monteur,m.woningtype,m.open?'terugkomen '+(m.openTxt||''):'',m.schade?'schade '+(m.schadeTxt||''):''].join(' ').toLowerCase().includes(q));
   if(!rows.length){ ul.innerHTML='<li class="empty">Niets gevonden.</li>'; syncSel(); return; }
   ul.innerHTML=rows.map(m=>{ const ko=(m.rads||[]).some(r=>r&&r.skip);
-    return `<li data-id="${m._id}"${m.afgerond?' class="done"':''}><input type="checkbox" class="pick" data-sel="${m._id}" aria-label="Selecteren"${sel.has(m._id)?' checked':''}><div class="t"><b>${esc(mAdr(m)||'(geen adres)')}${String(m.woningtype||'').trim()?`<span class="wt">${esc(m.woningtype)}</span>`:''}${ko?'<span class="ko">KO</span>':''}${m.afgerond?'<span class="okb">✓ Afgerond</span>':''}${m.open?'<span class="tk">⚠ Terugkomen</span>':''}</b>${m.open&&String(m.openTxt||'').trim()?`<span class="tkt">${esc(m.openTxt)}</span>`:''}<span>${esc([m.projectnaam,m.opdrachtgever,m.datumInspectie?nlDate(m.datumInspectie):''].filter(Boolean).join(' · '))}</span></div>
+    return `<li data-id="${m._id}"${m.afgerond?' class="done"':''}><input type="checkbox" class="pick" data-sel="${m._id}" aria-label="Selecteren"${sel.has(m._id)?' checked':''}><div class="t"><b>${esc(mAdr(m)||'(geen adres)')}${String(m.woningtype||'').trim()?`<span class="wt">${esc(m.woningtype)}</span>`:''}${ko?'<span class="ko">KO</span>':''}${m.afgerond?'<span class="okb">✓ Afgerond</span>':''}${m.open?'<span class="tk">⚠ Terugkomen</span>':''}${m.schade?'<span class="sk">🔶 Schade</span>':''}</b>${m.open&&String(m.openTxt||'').trim()?`<span class="tkt">${esc(m.openTxt)}</span>`:''}<span>${esc([m.projectnaam,m.opdrachtgever,m.datumInspectie?nlDate(m.datumInspectie):''].filter(Boolean).join(' · '))}</span></div>
       <label class="donec" title="Woning afgerond"><input type="checkbox" data-done="${m._id}"${m.afgerond?' checked':''}> Woning afgerond</label><button class="btn" type="button" data-open="${m._id}">Openen</button><span class="dz"><button class="btn ghost" type="button" data-ask="${m._id}">Verwijderen</button></span></li>`; }).join('');
   syncSel();
 }
@@ -1664,7 +1731,8 @@ $('#savedList').addEventListener('change',async e=>{ const d=e.target.closest('[
 $('#selAll').addEventListener('change',e=>{ visibleIds().forEach(id=>e.target.checked?sel.add(id):sel.delete(id)); renderList(); });
 async function loadMeldingData(id){ const m=(await db.doc('meldingen/'+id).get()).data(); if(!m) return null;
   const photos=[]; for(let i=0;i<(m.photoCount||0);i++){ const p=(await db.doc(`fotos/${id}-${i}`).get()).data(); if(p&&p.data) photos.push(p.data); }
-  const X=Object.assign(blank(),JSON.parse(JSON.stringify(m)),{photos});
+  const schadeFotos=[]; for(let i=0;i<(m.schadeCount||0);i++){ const p=(await db.doc(`fotos/${id}-s${i}`).get()).data(); if(p&&p.data) schadeFotos.push(p.data); }
+  const X=Object.assign(blank(),JSON.parse(JSON.stringify(m)),{photos,schadeFotos});
   if(X.adres && !X.straat && !X.huisnummer){ const mm=String(X.adres).match(/^(.*?)\s+(\d+\S*(?:\s*[a-zA-Z])?)$/); if(mm){X.straat=mm[1];X.huisnummer=mm[2];} else X.straat=X.adres; }
   return X; }
 const stampNow=()=>{ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
@@ -1721,8 +1789,10 @@ async function openMelding(id,noScroll){
   try{
     const m=(await db.doc('meldingen/'+id).get()).data(); if(!m){ say('Deze melding bestaat niet meer.'); loadList(); return; }
     const photos=[]; for(let i=0;i<(m.photoCount||0);i++){ const p=(await db.doc(`fotos/${id}-${i}`).get()).data(); if(p&&p.data) photos.push(p.data); }
-    S = Object.assign(blank(), JSON.parse(JSON.stringify(m)), {photos, _photoCount:photos.length});
-    photos.forEach((p,i)=>{ savedPh[id+'-'+i]=p; });
+    const schadeFotos=[]; for(let i=0;i<(m.schadeCount||0);i++){ const p=(await db.doc(`fotos/${id}-s${i}`).get()).data(); if(p&&p.data) schadeFotos.push(p.data); }
+    S = Object.assign(blank(), JSON.parse(JSON.stringify(m)), {photos, _photoCount:photos.length, schadeFotos, _schadeCount:schadeFotos.length});
+    if(!m.sig) S.sig='';
+    photos.forEach((p,i)=>{ savedPh[id+'-'+i]=p; }); schadeFotos.forEach((p,i)=>{ savedPh[id+'-s'+i]=p; });
     dirty=false; fillFields(); $('#drawer').hidden=true; $('#btnList').setAttribute('aria-expanded','false'); if(!noScroll) window.scrollTo({top:0});
     say('Melding geopend.');
   }catch(e){ say('Laden mislukt ('+(e.code||e.message)+').'); }
@@ -1765,7 +1835,9 @@ $('#btnBk').addEventListener('click',async()=>{
     const out=[]; let nf=0;
     for(const d of snap.docs){ const m=d.data()||{}; const f=[];
       for(let i=0;i<(m.photoCount||0);i++){ const p=(await db.doc(`fotos/${d.id}-${i}`).get()).data(); if(p&&p.data){ f.push(p.data); nf++; } }
-      out.push({id:d.id,data:m,fotos:f}); say(`Back-up maken… ${out.length} van ${snap.docs.length}`); }
+      const sf=[]; for(let i=0;i<(m.schadeCount||0);i++){ const p=(await db.doc(`fotos/${d.id}-s${i}`).get()).data(); if(p&&p.data){ sf.push(p.data); nf++; } }
+      let lg=null; try{ lg=(await db.doc('logboek/'+d.id).get()).data()||null; }catch(e){}
+      out.push({id:d.id,data:m,fotos:f,schade:sf,logboek:lg}); say(`Back-up maken… ${out.length} van ${snap.docs.length}`); }
     let cx=null; try{ cx=JSON.parse(localStorage.getItem('cs_complexen_v1')||'null'); }catch(e){}
     let gevels=[]; try{ const gsn=await db.collection('gevels').limit(500).get(); gevels=gsn.docs.map(d=>({id:d.id,data:d.data()})); }catch(e){}
     const json=JSON.stringify({app:BK_APP,versie:1,gemaakt:new Date().toISOString(),aantal:out.length,meldingen:out,complexen:cx,gevels});
@@ -1790,6 +1862,8 @@ $('#bkIn').addEventListener('change',async e=>{
       if(cur && (cur.updatedAt||0) >= (r.data.updatedAt||0)){ over++; continue; }
       const fotos=r.fotos;
       if(Array.isArray(fotos)) for(let i=0;i<fotos.length;i++) await db.doc(`fotos/${r.id}-${i}`).set({melding:r.id,i,data:fotos[i]});
+      if(Array.isArray(r.schade)) for(let i=0;i<r.schade.length;i++) await db.doc(`fotos/${r.id}-s${i}`).set({melding:r.id,i,schade:true,data:r.schade[i]});
+      if(r.logboek&&Array.isArray(r.logboek.items)) { try{ await db.doc('logboek/'+r.id).set(r.logboek); }catch(e){} }
       await db.doc('meldingen/'+r.id).set(Array.isArray(fotos)?Object.assign({},r.data,{photoCount:fotos.length}):r.data);
       cur?bijgewerkt++:nieuw++; }
     let ngv=0;
@@ -2040,7 +2114,7 @@ function esc(s){ return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&l
 try{ const c=JSON.parse(localStorage.getItem('cs-gm-concept')||'null'); if(c&&typeof c==='object'){ S=Object.assign(blank(),c); dirty=true; say('Concept van dit apparaat hersteld.'); } }catch(e){}
 fillFields(); requestAnimationFrame(sizeSig);
 if(window.claude&&claude.use){
-  claude.use('db').then(d=>{ db=d; if(d){ refreshSaved(); rtplLoad(); } if(!d){ $('#btnSave').disabled=true; $('#btnSave').title='Opslaan niet beschikbaar in deze weergave'; } });
+  claude.use('db').then(d=>{ db=d; if(d){ refreshSaved(); rtplLoad(); rolUI(); logLoad(); } if(!d){ $('#btnSave').disabled=true; $('#btnSave').title='Opslaan niet beschikbaar in deze weergave'; } });
   claude.use('sample').then(async s=>{ if(!s) return; const caps=await s.limits().catch(()=>null); if(!caps||!caps.images) return; sample=s; $('#fotoReadHint').hidden=false; });
   claude.use('downloads').then(d=>{ downloads=d; if(!d){ $('#btnPdf').disabled=true; } });
 } else { $('#btnSave').disabled=true; $('#btnPdf').disabled=true; }
@@ -2084,7 +2158,7 @@ if(window.claude&&claude.use){
     function zet(v){ta.value=v;ta.dispatchEvent(new Event('input',{bubbles:true}))}
     async function netjes(auto){ var o=ta.value; if(!o.trim()){ if(!auto) st.textContent='Nog geen tekst.'; return; }
       bN.disabled=true; st.textContent='Tekst wordt netjes gemaakt…';
-      try{ var n=await aiNetjes(o); if(ta.value===o){ zet(n); st.textContent='✓ Netjes gemaakt. Controleer hem even.'; } }
+      try{ var n=await Promise.race([aiNetjes(o),new Promise(function(_,rj){setTimeout(function(){rj(new Error('timeout'))},20000)})]); if(ta.value===o){ zet(n); st.textContent='✓ Netjes gemaakt. Controleer hem even.'; } }
       catch(e){ var n2=regels(o); if(ta.value===o) zet(n2); st.textContent='AI is even niet bereikbaar; met vaste regels opgeschoond. Probeer later nog eens voor een betere tekst.'; }
       bN.disabled=false; }
     bN.addEventListener('click',function(){netjes(false)});
@@ -2101,7 +2175,7 @@ if(window.claude&&claude.use){
     }
     bD.addEventListener('click',function(){aan?stop():start()});
   }
-  setup('bijzonderheden','dicBz'); setup('openTxt','dicOpen');
+  setup('bijzonderheden','dicBz'); setup('openTxt','dicOpen'); setup('schadeTxt','dicSchade'); setup('logTxt','dicLog');
 })();
 </script>
 <style>.dt-row{display:flex;gap:8px;align-items:stretch}.dt-row input{flex:1 1 auto;min-width:0}.dt-today{white-space:nowrap}</style>
