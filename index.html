@@ -447,10 +447,12 @@ section.skipped{border-left-color:var(--bad)}
     <div class="bulk k-only"><label class="selall"><input type="checkbox" id="selAll"> Alles selecteren</label>
       <div class="bulkbtns"><button class="btn" type="button" id="btnXls" disabled>Overzicht (Excel)</button>
       <button class="btn primary" type="button" id="btnZip" disabled>Download selectie (ZIP)</button>
+      <button class="btn k-only" type="button" id="btnBin">🗑 Prullenbak</button>
       <button class="btn navy" type="button" id="btnZipAll">⬇ Alles downloaden (ZIP)</button></div></div>
     <div class="bk k-only"><span class="bkt">Back-up van alle meldingen, foto's en complexen</span>
       <button class="btn" type="button" id="btnBk">⬇ Back-up maken</button>
       <label class="btn" for="bkIn" id="bkInL">⬆ Back-up terugzetten</label><input type="file" id="bkIn" accept=".json,application/json" multiple hidden></div>
+    <div class="bin k-only" id="binBox" hidden><h4>🗑 Prullenbak <small>verwijderde meldingen; foto's blijven bewaard tot je ze definitief verwijdert</small></h4><ul class="saved" id="binList"></ul></div>
     <ul class="saved" id="savedList"><li class="empty">Laden…</li></ul>
   </div>
 
@@ -1789,7 +1791,7 @@ $('#savedList').addEventListener('click',async e=>{
   if(o){ if(dirty && !o.dataset.sure){ o.dataset.sure='1'; o.textContent='Wijzigingen weggooien?'; return; } await openMelding(o.dataset.open); }
   if(a){ a.parentElement.innerHTML=`<span class="confirm">Zeker? <button class="btn" type="button" data-yes="${a.dataset.ask}">Ja, verwijder</button><button class="btn ghost" type="button" data-no="1">Nee</button></span>`; }
   if(n){ loadList(); }
-  if(y){ const id=y.dataset.yes; try{ const m=(await db.doc('meldingen/'+id).get()).data()||{}; for(let i=0;i<(m.photoCount||0);i++){ try{await db.doc(`fotos/${id}-${i}`).delete();}catch(_){} } await db.doc('meldingen/'+id).delete(); if(S.id===id){S.id=null;dirty=true;updateStatus();} loadList(); }catch(err){ say('Verwijderen mislukt ('+(err.code||err.message)+').'); } }
+  if(y){ const id=y.dataset.yes; try{ const m=(await db.doc('meldingen/'+id).get()).data()||{}; await db.doc('prullenbak/'+id).set({data:m, verwijderdOp:Date.now()}); await db.doc('meldingen/'+id).delete(); if(S.id===id){S.id=null;dirty=true;updateStatus();} say('Melding naar de prullenbak verplaatst (terug te zetten via 🗑 Prullenbak).'); loadList(); refreshSaved(); }catch(err){ say('Verwijderen mislukt ('+(err.code||err.message)+').'); } }
 });
 async function openMelding(id,noScroll){
   say('Melding laden…');
@@ -1921,6 +1923,16 @@ $('#btnGereed').addEventListener('click',async()=>{
   else { S.afgerond=!S.afgerond; S.afgerondOp=S.afgerond?Date.now():null; }
   gereedUI(); b.disabled=false; });
 
+/* ---------- prullenbak ---------- */
+async function binLoad(){ const ul=$('#binList'); ul.innerHTML='<li class="empty">Laden…</li>';
+  try{ const sn=await db.collection('prullenbak').get(); const rows=sn.docs.map(d=>Object.assign({_id:d.id},d.data()||{})).sort((a,b)=>(b.verwijderdOp||0)-(a.verwijderdOp||0));
+    ul.innerHTML=rows.length?rows.map(r=>`<li><div class="t"><b>${esc(mAdr(r.data||{})||'(geen adres)')}</b><span>verwijderd op ${esc(new Date(r.verwijderdOp||0).toLocaleString('nl-NL',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))}</span></div><button class="btn" type="button" data-bres="${r._id}">Terugzetten</button><button class="btn ghost" type="button" data-bdel="${r._id}">Definitief verwijderen</button></li>`).join(''):'<li class="empty">De prullenbak is leeg.</li>';
+  }catch(e){ ul.innerHTML='<li class="empty">Laden mislukt ('+esc(e.code||e.message)+').</li>'; } }
+$('#btnBin').addEventListener('click',()=>{ const b=$('#binBox'); b.hidden=!b.hidden; if(!b.hidden) binLoad(); });
+$('#binList').addEventListener('click',async e=>{ const r=e.target.closest('[data-bres]'), d=e.target.closest('[data-bdel]');
+  if(r){ const id=r.dataset.bres; try{ const x=(await db.doc('prullenbak/'+id).get()).data(); if(x&&x.data){ await db.doc('meldingen/'+id).set(Object.assign({},x.data,{updatedAt:Date.now()})); await db.doc('prullenbak/'+id).delete(); say('Melding teruggezet.'); binLoad(); loadList(); refreshSaved(); } }catch(err){ say('Terugzetten mislukt ('+(err.code||err.message)+').'); } }
+  if(d){ if(!d.dataset.arm){ d.dataset.arm=1; d.textContent='Zeker? Tik nogmaals'; return; } const id=d.dataset.bdel;
+    try{ const x=(await db.doc('prullenbak/'+id).get()).data()||{}; const m=x.data||{}; for(let i=0;i<(m.photoCount||0);i++){ try{await db.doc(`fotos/${id}-${i}`).delete();}catch(_){} } for(let i=0;i<(m.schadeCount||0);i++){ try{await db.doc(`fotos/${id}-s${i}`).delete();}catch(_){} } await db.doc('prullenbak/'+id).delete(); say('Definitief verwijderd.'); binLoad(); }catch(err){ say('Verwijderen mislukt ('+(err.code||err.message)+').'); } } });
 /* ---------- pijltjes A-temp / R-temp ---------- */
 function radStappers(root){ root.querySelectorAll('input[data-rk="aTemp"],input[data-rk="rTemp"]').forEach(inp=>{ if(inp.parentElement.classList.contains('rstp')) return;
     const w=document.createElement('span'); w.className='rstp'; inp.parentNode.insertBefore(w,inp); w.appendChild(inp);
