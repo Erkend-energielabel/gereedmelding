@@ -377,6 +377,14 @@ select.autoval{border-color:var(--ok)!important;background:color-mix(in srgb,var
 .rstp .rs-b{display:flex;flex-direction:column;gap:1px;flex:none}
 .rstp .rs-b button{width:24px;flex:1;min-height:17px;padding:0;border:1px solid var(--line-strong);background:var(--surface);border-radius:3px;font-size:9px;line-height:1;cursor:pointer;color:var(--text);touch-action:manipulation}
 .rcard .rstp .rs-b{flex-direction:row}.rcard .rstp .rs-b button{width:38px;font-size:13px}
+.cheer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9998;pointer-events:auto;background:rgba(20,30,45,0);transition:background .3s}
+.cheer.in{background:rgba(20,30,45,.25)}
+.cheer-b{background:#fff;border-radius:18px;padding:22px 28px;box-shadow:0 18px 50px rgba(0,0,0,.25);text-align:center;transform:scale(.6);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .25s;max-width:min(90vw,420px);border-top:6px solid var(--orange)}
+.cheer.in .cheer-b{transform:scale(1);opacity:1}
+.cheer-b b{display:block;font-size:30px;font-weight:800;color:var(--orange);line-height:1.15}
+.cheer-b span{display:block;margin-top:8px;font-size:16px;color:var(--text)}
+.cheer.groot .cheer-b b{font-size:34px}.cheer-b .btn{margin-top:16px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:9999}
 .rtpl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:8px;background:var(--field)}
 .rtpl-t{font-size:12.5px;color:var(--muted);margin-right:auto}
 .rtpl-ask{flex-basis:100%;font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -736,6 +744,7 @@ section.skipped{border-left-color:var(--bad)}
         +'<button type="button" class="btn" id="cxPdf"'+(dls&&window.jspdf?'':' hidden')+'>🖨 Gevel-PDF</button></div>'
         +'<div class="pg-bar"><i style="width:'+pct+'%"></i>'+(nr?'<i class="r" style="width:'+Math.round(nr/tot*100)+'%"></i>':'')+'</div>'
         +(Object.keys(perB).length>1?'<div class="pg-bl">'+Object.keys(perB).sort(cmpBlok).map(function(bb){var o=perB[bb];return '<span>'+(bb?'Blok '+esc(bb):'Zonder blok')+': <b>'+o.g+'/'+o.t+'</b> ('+Math.round(o.g/o.t*100)+'%)</span>'}).join('')+'</div>':'');
+      if(window.csCel&&Date.now()-window.csCel<20000&&tot&&ng===tot&&window.csProjectKlaar)window.csProjectKlaar(c.naam);
       $('cxPdf').hidden=!(dls&&window.jspdf);$('hProg').hidden=false;$('hPct').textContent=pct+'% gereed';var nOpen=c.adr.filter(function(a){var x=svMap.get(akey(a));return x&&x.open}).length;$('hTxt').textContent=ng+' van '+tot+' woningen'+(nOpen?' · ⚠ '+nOpen+' terugkomen':'')+' · '+c.naam;
     }else{$('cxProg').hidden=true;$('hProg').hidden=true;}
     if(box._html!==html){var hh=box.offsetHeight;if(hh)box.style.minHeight=hh+'px';box.innerHTML=html;box._html=html;setTimeout(function(){box.style.minHeight=''},400);}
@@ -1919,9 +1928,27 @@ $('#btnGereed').addEventListener('click',async()=>{
   for(let i=0;i<50&&saving;i++) await new Promise(r=>setTimeout(r,100));
   S.afgerond=!S.afgerond; S.afgerondOp=S.afgerond?Date.now():null; dirty=true; rev++;
   const ok=await save(true);
-  if(ok) say(S.afgerond?`✓ ${S.straat} ${S.huisnummer} is gereed gemeld.`:`Gereedmelding van ${S.straat} ${S.huisnummer} ongedaan gemaakt.`);
+  if(ok){ say(S.afgerond?`✓ ${S.straat} ${S.huisnummer} is gereed gemeld.`:`Gereedmelding van ${S.straat} ${S.huisnummer} ongedaan gemaakt.`); csTeller(S.afgerond); }
   else { S.afgerond=!S.afgerond; S.afgerondOp=S.afgerond?Date.now():null; }
   gereedUI(); b.disabled=false; });
+
+/* ---------- aanmoediging + confetti ---------- */
+function csCheer(titel,tekst,groot){ let o=document.getElementById('cheer'); if(o) o.remove();
+  o=document.createElement('div'); o.id='cheer'; o.className='cheer'+(groot?' groot':'');
+  o.innerHTML='<div class="cheer-b"><b>'+esc(titel)+'</b>'+(tekst?'<span>'+esc(tekst)+'</span>':'')+(groot?'<button type="button" class="btn primary">Sluiten</button>':'')+'</div>';
+  document.body.appendChild(o); requestAnimationFrame(()=>o.classList.add('in'));
+  const weg=()=>{ o.classList.remove('in'); setTimeout(()=>o.remove(),350); }; o.addEventListener('click',weg); if(!groot) setTimeout(weg,3200); }
+function csConfetti(){ const c=document.createElement('canvas'); c.className='confetti'; document.body.appendChild(c); const x=c.getContext('2d');
+  const W=c.width=innerWidth, H=c.height=innerHeight, kl=['#E8743B','#1F3A5F','#F2B134','#3BA776','#D9534F','#5BC0DE'];
+  const P=Array.from({length:220},()=>({x:Math.random()*W,y:-20-Math.random()*H*0.6,vx:(Math.random()-.5)*3,vy:2+Math.random()*3.5,r:Math.random()*6.28,vr:(Math.random()-.5)*.3,w:6+Math.random()*6,h:8+Math.random()*8,k:kl[(Math.random()*kl.length)|0]}));
+  const t0=performance.now(); (function f(t){ x.clearRect(0,0,W,H); let leeft=0;
+    P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.r+=p.vr; if(p.y<H+20) leeft++; x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle=p.k; x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*2))); x.restore(); });
+    if(leeft&&t-t0<9000) requestAnimationFrame(f); else c.remove(); })(t0); }
+function csTeller(aan){ let n=0; try{ n=parseInt(localStorage.getItem('cs-teller')||'0',10)||0; }catch(e){}
+  n=Math.max(0,n+(aan?1:-1)); try{ localStorage.setItem('cs-teller',String(n)); }catch(e){}
+  if(!aan) return; window.csCel=Date.now();
+  setTimeout(()=>{ if(!window.csCel||Date.now()-(window.csKlaarOp||0)<8000) return; if(n%4===0){ const T=[['Lekker bezig!','Weer 4 woningen ingeregeld en gereed.'],['Hoppa! Volgende 4!','Je gaat als een speer.'],['Zo gaat het lekker!','Weer 4 woningen verder.']][((n/4)-1)%3]; csCheer(T[0],T[1]); } },1800); }
+window.csProjectKlaar=function(naam){ window.csCel=0; if(Date.now()-(window.csKlaarOp||0)<60000) return; window.csKlaarOp=Date.now(); csConfetti(); csCheer('🎉 Project afgerond!','Alle woningen'+(naam?' van '+naam:'')+' zijn gereed. Bedankt voor jullie inzet, toppers!',true); };
 
 /* ---------- prullenbak ---------- */
 async function binLoad(){ const ul=$('#binList'); ul.innerHTML='<li class="empty">Laden…</li>';
