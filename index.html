@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#F5F1EE;color:#1D1D1B}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html><html><head><meta charset=utf8><script>try{var _t=localStorage.getItem("cs-theme");if(_t)document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#F5F1EE;color:#1D1D1B}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <div class="login" id="login" hidden>
   <form class="lg-card" id="lgForm" autocomplete="off">
     <div class="lg-logo" id="lgLogo"></div>
@@ -445,7 +445,7 @@ section.skipped{border-left-color:var(--bad)}
   <div class="bar">
     <button class="btn" id="btnList" type="button" aria-expanded="false">Opgeslagen meldingen</button>
     <button class="btn" id="btnNew" type="button">＋ Nieuwe melding</button>
-    <span class="rol" id="rolTag"></span><button class="btn ghost" type="button" id="btnLogout" onclick="window.csLogout&&csLogout()">Uitloggen</button>
+    <span class="rol" id="rolTag"></span><button class="btn ghost" type="button" id="btnTheme" title="Wissel tussen licht en donker scherm">🌙 Donker</button><button class="btn ghost" type="button" id="btnLogout" onclick="window.csLogout&&csLogout()">Uitloggen</button>
     <div class="status" id="status">Nieuwe melding · <b>niet opgeslagen</b></div>
   </div>
 
@@ -1932,6 +1932,9 @@ $('#btnGereed').addEventListener('click',async()=>{
   else { S.afgerond=!S.afgerond; S.afgerondOp=S.afgerond?Date.now():null; }
   gereedUI(); b.disabled=false; });
 
+/* ---------- licht / donker ---------- */
+function csThemeLbl(){ const b=document.getElementById('btnTheme'); if(!b) return; const d=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'); b.textContent=d==='dark'?'☀ Licht':'🌙 Donker'; }
+(function(){ const b=document.getElementById('btnTheme'); if(b) b.addEventListener('click',()=>{ const d=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'); const n=d==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); try{localStorage.setItem('cs-theme',n)}catch(e){} csThemeLbl(); }); csThemeLbl(); })();
 /* ---------- aanmoediging + confetti ---------- */
 function csCheer(titel,tekst,groot){ let o=document.getElementById('cheer'); if(o) o.remove();
   o=document.createElement('div'); o.id='cheer'; o.className='cheer'+(groot?' groot':'');
