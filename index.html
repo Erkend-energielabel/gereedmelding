@@ -2157,8 +2157,8 @@ if(window.claude&&claude.use){
     var bD=bar.querySelector('.b-dic'), bN=bar.querySelector('.b-net'), st=bar.querySelector('.d-st');
     function zet(v){ta.value=v;ta.dispatchEvent(new Event('input',{bubbles:true}))}
     async function netjes(auto){ var o=ta.value; if(!o.trim()){ if(!auto) st.textContent='Nog geen tekst.'; return; }
-      bN.disabled=true; st.textContent='Tekst wordt netjes gemaakt…';
-      try{ var n=await Promise.race([aiNetjes(o),new Promise(function(_,rj){setTimeout(function(){rj(new Error('timeout'))},20000)})]); if(ta.value===o){ zet(n); st.textContent='✓ Netjes gemaakt. Controleer hem even.'; } }
+      bN.disabled=true; st.textContent='Tekst wordt netjes gemaakt met AI… (kan tot een minuut duren, je kunt gewoon verder werken)';
+      try{ var n=await Promise.race([aiNetjes(o),new Promise(function(_,rj){setTimeout(function(){rj(new Error('timeout'))},90000)})]); if(ta.value===o){ zet(n); st.textContent='✓ Netjes gemaakt. Controleer hem even.'; } }
       catch(e){ var n2=regels(o); if(ta.value===o) zet(n2); st.textContent='AI is even niet bereikbaar; met vaste regels opgeschoond. Probeer later nog eens voor een betere tekst.'; }
       bN.disabled=false; }
     bN.addEventListener('click',function(){netjes(false)});
@@ -2175,6 +2175,7 @@ if(window.claude&&claude.use){
     }
     bD.addEventListener('click',function(){aan?stop():start()});
   }
+  setTimeout(function(){ if(window.csRole) aiModel().catch(function(){}); },6000);
   setup('bijzonderheden','dicBz'); setup('openTxt','dicOpen'); setup('schadeTxt','dicSchade'); setup('logTxt','dicLog');
 })();
 </script>
