@@ -768,7 +768,7 @@ section.skipped{border-left-color:var(--bad)}
           html+='</div></div>';
         });
         html+='</div><div class="gv-voet"><span class="gv-entree"></span></div><div class="gv-grond"></div>'
-          +(gvDb&&g&&g.st!=='loading'?'<div class="gvf-up">'+(g.st==='ok'?'<button type="button" class="btn" data-gact="foto" data-gk="'+esc(gk)+'">📷 Gevelfoto tonen</button>':'<label class="btn k-only">📷 Gevelfoto / tekening uploaden<input type="file" accept="image/*" data-gkup="'+esc(gk)+'" hidden></label>')+'</div>':'')
+          
           +(heeftVd?'':'<div class="gv-pl k-only">Woonlagen <button type="button" data-pl="'+esc(b)+'" data-d="-1" aria-label="Minder lagen">−</button><b>'+lg+'</b><button type="button" data-pl="'+esc(b)+'" data-d="1" aria-label="Meer lagen">+</button><span>· '+pl+' per laag</span></div>')
           +'</div>';
       }
