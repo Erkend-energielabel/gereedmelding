@@ -456,6 +456,7 @@ section.skipped{border-left-color:var(--bad)}
       <div class="bulkbtns"><button class="btn" type="button" id="btnXls" disabled>Overzicht (Excel)</button>
       <button class="btn primary" type="button" id="btnZip" disabled>Download selectie (ZIP)</button>
       <button class="btn k-only" type="button" id="btnBin">🗑 Prullenbak</button>
+      <button class="btn k-only" type="button" id="btnDelSel" disabled>🗑 Selectie verwijderen</button>
       <button class="btn navy" type="button" id="btnZipAll">⬇ Alles downloaden (ZIP)</button></div></div>
     <div class="bk k-only"><span class="bkt">Back-up van alle meldingen, foto's en complexen</span>
       <button class="btn" type="button" id="btnBk">⬇ Back-up maken</button>
@@ -545,6 +546,10 @@ section.skipped{border-left-color:var(--bad)}
 .pov-n small{display:block;font-weight:400;color:var(--muted);font-size:12px;white-space:normal}
 .pov-p{font-weight:800;color:var(--orange);font-size:18px}
 .pov-r .pg-bar{grid-column:1/-1;margin-top:6px}
+.pov-pz{display:flex;align-items:center;gap:8px}
+.pov-zip{min-height:30px;padding:4px 8px;font-size:12px}
+.pgrp-b{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--field);padding:8px 10px;font-weight:700;cursor:pointer;color:var(--text);font-size:13px}
+.pgrp-b small{font-weight:400;color:var(--muted);margin-left:6px}
 .cx-prog{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .pg-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .pg-pct{font-size:28px;font-weight:800;color:var(--orange);line-height:1}
@@ -676,10 +681,10 @@ section.skipped{border-left-color:var(--bad)}
     box.innerHTML='<h4>Voortgang per project</h4>'+list.map(function(c){ var t=c.adr.length,g=0,r=0,o=0;
       c.adr.forEach(function(a){ var x=m.get(akey(a)); if(x&&x.afgerond)g++; else if(x&&x.rad)r++; if(x&&x.open)o++; });
       var p=t?Math.round(g/t*100):0;
-      return '<div class="pov-r" data-pov="'+esc(c.id)+'"><div class="pov-n">'+esc(c.naam)+'<small>'+g+' van '+t+' gereed'+(r?' · '+r+' met radiatoren':'')+(o?' · ⚠ '+o+' terugkomen':'')+'</small></div><div class="pov-p">'+p+'%</div><div class="pg-bar"><i style="width:'+p+'%"></i></div></div>';
+      return '<div class="pov-r" data-pov="'+esc(c.id)+'"><div class="pov-n">'+esc(c.naam)+'<small>'+g+' van '+t+' gereed'+(r?' · '+r+' met radiatoren':'')+(o?' · ⚠ '+o+' terugkomen':'')+'</small></div><div class="pov-pz"><div class="pov-p">'+p+'%</div><button type="button" class="btn ghost pov-zip" data-povzip="'+esc(c.id)+'">⬇ ZIP</button></div><div class="pg-bar"><i style="width:'+p+'%"></i></div></div>';
     }).join('');
   }
-  if(!window.__povBound){ window.__povBound=1; $('povBox').addEventListener('click',function(e){ var r=e.target.closest('[data-pov]'); if(!r) return; var s=$('cxSel'); s.value=r.dataset.pov; s.dispatchEvent(new Event('change')); }); }
+  if(!window.__povBound){ window.__povBound=1; $('povBox').addEventListener('click',function(e){ var z=e.target.closest('[data-povzip]'); if(z){ var pc=st.cx.filter(function(x){return x.id===z.dataset.povzip})[0]; if(pc&&window.csZipProject) window.csZipProject(pc.naam); return; } var r=e.target.closest('[data-pov]'); if(!r) return; var s=$('cxSel'); s.value=r.dataset.pov; s.dispatchEvent(new Event('change')); }); }
   function render(){
     var c=cxCur();
     var sel=$('cxSel');sel.innerHTML='';
@@ -1757,9 +1762,14 @@ function renderList(){
   if(!listCache.length){ ul.innerHTML='<li class="empty">Nog geen meldingen opgeslagen.</li>'; syncSel(); return; }
   const rows=listCache.filter(m=>!q || [mAdr(m),m.postcode,m.projectnaam,m.projectnummer,m.opdrachtgever,m.monteur,m.woningtype,m.open?'terugkomen '+(m.openTxt||''):'',m.schade?'schade '+(m.schadeTxt||''):''].join(' ').toLowerCase().includes(q));
   if(!rows.length){ ul.innerHTML='<li class="empty">Niets gevonden.</li>'; syncSel(); return; }
-  ul.innerHTML=rows.map(m=>{ const ko=(m.rads||[]).some(r=>r&&r.skip);
+  const rowH=m=>{ const ko=(m.rads||[]).some(r=>r&&r.skip);
     return `<li data-id="${m._id}"${m.afgerond?' class="done"':''}><input type="checkbox" class="pick" data-sel="${m._id}" aria-label="Selecteren"${sel.has(m._id)?' checked':''}><div class="t"><b>${esc(mAdr(m)||'(geen adres)')}${String(m.woningtype||'').trim()?`<span class="wt">${esc(m.woningtype)}</span>`:''}${ko?'<span class="ko">KO</span>':''}${m.afgerond?'<span class="okb">✓ Afgerond</span>':''}${m.open?'<span class="tk">⚠ Terugkomen</span>':''}${m.schade?'<span class="sk">🔶 Schade</span>':''}</b>${m.open&&String(m.openTxt||'').trim()?`<span class="tkt">${esc(m.openTxt)}</span>`:''}<span>${esc([m.projectnaam,m.opdrachtgever,m.datumInspectie?nlDate(m.datumInspectie):''].filter(Boolean).join(' · '))}</span></div>
-      <label class="donec" title="Woning afgerond"><input type="checkbox" data-done="${m._id}"${m.afgerond?' checked':''}> Woning afgerond</label><button class="btn" type="button" data-open="${m._id}">Openen</button><span class="dz"><button class="btn ghost" type="button" data-ask="${m._id}">Verwijderen</button></span></li>`; }).join('');
+      <label class="donec" title="Woning afgerond"><input type="checkbox" data-done="${m._id}"${m.afgerond?' checked':''}> Woning afgerond</label><button class="btn" type="button" data-open="${m._id}">Openen</button><span class="dz"><button class="btn ghost" type="button" data-ask="${m._id}">Verwijderen</button></span></li>`; };
+  const gk=m=>(String(m.projectnaam||'').trim()||'Zonder project');
+  const grps=[...new Set(rows.map(gk))].sort((a,b)=>a.localeCompare(b,'nl',{numeric:true}));
+  let dicht=[]; try{dicht=JSON.parse(localStorage.getItem('cs-grp-dicht')||'[]')}catch(e){}
+  ul.innerHTML=grps.map(g=>{ const rs=rows.filter(m=>gk(m)===g); const gereed=rs.filter(m=>m.afgerond).length; const d=dicht.includes(g);
+    return `<li class="pgrp"><button type="button" class="pgrp-b" data-grpt="${esc(g)}" aria-expanded="${!d}">${d?'▸':'▾'} ${esc(g)} <small>${gereed} van ${rs.length} gereed</small></button></li>`+(d?'':rs.map(rowH).join('')); }).join('');
   syncSel();
 }
 async function loadList(){
@@ -1778,7 +1788,7 @@ async function loadList(){
 }
 $('#zoek').addEventListener('input',renderList);
 function visibleIds(){ return [...document.querySelectorAll('#savedList [data-sel]')].map(x=>x.dataset.sel); }
-function syncSel(){ const v=visibleIds(); $('#selAll').checked=v.length>0 && v.every(id=>sel.has(id)); const n=sel.size;
+function syncSel(){ const v=visibleIds(); $('#selAll').checked=v.length>0 && v.every(id=>sel.has(id)); const n=sel.size; (function(){ const bd=$('#btnDelSel'); if(bd&&!bd.dataset.arm){ bd.disabled=!n; bd.textContent=n?'🗑 Verwijder '+n+' geselecteerd':'🗑 Selectie verwijderen'; } })();
   const b=$('#btnZip'); b.disabled=!n; b.textContent=n?`Download ${n} ${n===1?'melding':'meldingen'} (ZIP)`:'Download selectie (ZIP)'; $('#btnXls').disabled=!n; }
 $('#savedList').addEventListener('change',async e=>{ const d=e.target.closest('[data-done]');
   if(d){ const id=d.dataset.done, on=d.checked, m=listCache.find(x=>x._id===id);
@@ -1819,6 +1829,18 @@ $('#btnZipAll').addEventListener('click',async()=>{
   if(!listCache.length){ say('Er zijn nog geen opgeslagen meldingen.'); return; }
   listCache.forEach(m=>sel.add(m._id)); renderList(); $('#btnZip').click();
 });
+let delArm=null;
+$('#btnDelSel').addEventListener('click',async()=>{
+  const ids=[...sel]; if(!ids.length) return; const b=$('#btnDelSel');
+  if(!db){ say('Verwijderen is in deze weergave niet beschikbaar.'); return; }
+  if(!b.dataset.arm){ b.dataset.arm=1; b.textContent='Zeker? Tik nogmaals ('+ids.length+' naar prullenbak)'; clearTimeout(delArm); delArm=setTimeout(()=>{ delete b.dataset.arm; syncSel(); },4000); return; }
+  delete b.dataset.arm; clearTimeout(delArm); b.disabled=true; let ok=0, fout=0;
+  say('Selectie verplaatsen naar prullenbak…');
+  for(const id of ids){ try{ const m=(await db.doc('meldingen/'+id).get()).data()||{}; await db.doc('prullenbak/'+id).set({data:m, verwijderdOp:Date.now()}); await db.doc('meldingen/'+id).delete(); ok++; sel.delete(id); if(S.id===id){ S.id=null; dirty=true; updateStatus(); } }catch(err){ fout++; } }
+  say(`${ok} ${ok===1?'melding':'meldingen'} naar de prullenbak verplaatst${fout?` (${fout} mislukt)`:''}. Terug te zetten via 🗑 Prullenbak.`);
+  await loadList(); refreshSaved(); syncSel();
+});
+window.csZipProject=function(naam){ const ids=listCache.filter(m=>m.afgerond&&String(m.projectnaam||'').trim()===naam).map(m=>m._id); if(!ids.length){ say('Er zijn nog geen afgeronde woningen in '+naam+'.'); return; } sel.clear(); ids.forEach(id=>sel.add(id)); renderList(); $('#btnZip').click(); };
 $('#btnZip').addEventListener('click',async()=>{
   if(!window.JSZip||!window.jspdf){ say('Module niet geladen — controleer je verbinding en herlaad.'); return; }
   if(!downloads){ say('Downloaden is in deze weergave niet beschikbaar.'); return; }
@@ -1828,7 +1850,7 @@ $('#btnZip').addEventListener('click',async()=>{
     say(`Melding ${i+1} van ${ids.length} maken…`);
     try{ const X=await loadMeldingData(ids[i]); if(!X){ fout++; continue; }
       const {blob,fname}=await buildPdf(X); let f=fname, n=2; while(used.has(f)){ f=fname.replace(/\.pdf$/,` (${n++}).pdf`); } used.add(f);
-      zip.file(f,blob); addPhotos(X, zip.folder(f.replace(/\.pdf$/,'')+" - foto's")); ok++;
+      const pf=zip.folder(safeName(X.projectnaam)||'Zonder project'); pf.file(f,blob); addPhotos(X, pf.folder(f.replace(/\.pdf$/,'')+" - foto's")); ok++;
     }catch(e){ console.error(e); fout++; }
     await new Promise(r=>setTimeout(r,0));
   }
@@ -1840,6 +1862,7 @@ $('#btnZip').addEventListener('click',async()=>{
   catch(e){ say('Download geannuleerd of mislukt ('+(e.code||e.message)+').'); }
   syncSel();
 });
+$('#savedList').addEventListener('click',e=>{ const g=e.target.closest('[data-grpt]'); if(!g) return; let d=[]; try{d=JSON.parse(localStorage.getItem('cs-grp-dicht')||'[]')}catch(x){} const k=g.dataset.grpt; d=d.includes(k)?d.filter(x=>x!==k):d.concat([k]); try{localStorage.setItem('cs-grp-dicht',JSON.stringify(d))}catch(x){} renderList(); });
 $('#savedList').addEventListener('click',async e=>{
   const o=e.target.closest('[data-open]'), a=e.target.closest('[data-ask]'), y=e.target.closest('[data-yes]'), n=e.target.closest('[data-no]');
   if(o){ if(dirty && !o.dataset.sure){ o.dataset.sure='1'; o.textContent='Wijzigingen weggooien?'; return; } await openMelding(o.dataset.open); }
