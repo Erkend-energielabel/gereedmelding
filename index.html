@@ -539,7 +539,7 @@ section.skipped{border-left-color:var(--bad)}
 @media (max-width:620px){.hprog{margin-left:0;align-items:flex-start;text-align:left;width:100%}.hprog b{font-size:22px}}
 .pov{margin:0 0 12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
 .pov h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.pow-r{display:grid;grid-template-columns:1fr auto;gap:0 10px;align-items:center;padding:8px 2px;border-top:1px solid var(--line);cursor:pointer}
+.pov-r{display:grid;grid-template-columns:1fr auto;gap:0 10px;align-items:center;padding:8px 2px;border-top:1px solid var(--line);cursor:pointer}
 .pov-r:hover{background:var(--field)}
 .pov-n{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pov-n small{display:block;font-weight:400;color:var(--muted);font-size:12px;white-space:normal}
@@ -697,7 +697,7 @@ section.skipped{border-left-color:var(--bad)}
     }
     $('cxBlokLijst').innerHTML=bs.filter(Boolean).map(function(b){return '<option value="'+esc(b)+'"></option>'}).join('');
     var isK=window.csRole==='kantoor';['cxNaam','cxOg','cxPnr'].forEach(function(id){$(id).readOnly=!isK});
-    $('cxRow2').hidden=!c;$('cxLegend').hidden=!c;$('cxMeta').hiden=!c;if(c){if(document.activeElement!==$('cxNaam'))$('cxNaam').value=c.naam;if(document.activeElement!==$('cxOg'))$('cxOg').value=c.og||'';if(document.activeElement!==$('cxPnr'))$('cxPnr').value=c.pnr||''}$('cxBeheer').hidden=!c;
+    $('cxRow2').hidden=!c;$('cxLegend').hidden=!c;$('cxMeta').hidden=!c;if(c){if(document.activeElement!==$('cxNaam'))$('cxNaam').value=c.naam;if(document.activeElement!==$('cxOg'))$('cxOg').value=c.og||'';if(document.activeElement!==$('cxPnr'))$('cxPnr').value=c.pnr||''}$('cxBeheer').hidden=!c;
     renderPov();
     $('cxStat').textContent=c?'— '+c.adr.length+' nummers'+(heeftBlok?' in '+bs.filter(Boolean).length+' blokken':''):(st.cx.length?'— '+st.cx.length+' complexen beschikbaar':'');
     // nummers
