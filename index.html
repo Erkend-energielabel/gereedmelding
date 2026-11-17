@@ -3,20 +3,20 @@
   <form class="lg-card" id="lgForm" autocomplete="off">
     <div class="lg-logo" id="lgLogo"></div>
     <div class="lg-sub">Bouwen is mensenwerk · Opleverrapport</div>
-    <h2>Gereedmelding CV / warmtenet-installatie</h2>
-    <button class="btn ghost" type="button" id="lgMs" style="width:100%;margin-top:4px;min-height:48px">Inloggen met Microsoft (kantoor)</button><p style="text-align:center;color:#717171;font-size:12px;margin:12px 0 4px">of met de code (monteurs)</p><label for="lgCode">Code</label>
+    <h2>Log in om verder te gaan</h2><p class="lg-intro">Kantoor logt in met het De Laat Bouwbegeleiding-account.</p>
+    <button class="btn" type="button" id="lgMs" style="width:100%;margin-top:4px;min-height:52px;background:#0F4A2C;color:#fff;border:0;border-radius:12px;font-size:18px;font-weight:600">Inloggen met Microsoft</button><p style="text-align:center;color:#717171;font-size:12px;margin:12px 0 4px">Monteur? Log in met de monteurscode.</p><label for="lgCode">Code</label>
     <input id="lgCode" type="password" autocomplete="current-password" placeholder="Voer je code in" enterkeyhint="go">
     <p class="lg-err" id="lgErr" hidden></p>
     <button class="btn primary" type="submit" id="lgBtn">Inloggen</button>
-    <p class="lg-note">Kantoor logt in met het De Laat Bouwbegeleiding-account. Monteurs gebruiken de monteurscode.</p>
+    
   </form>
 </div>
 <style>
 .login{position:fixed;inset:0;z-index:100;background:var(--orange);display:flex;align-items:center;justify-content:center;padding:20px}
-.lg-card{background:#fff;color:#1D1D1B;border-radius:10px;padding:26px 24px;width:min(380px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25);border-top:6px solid #1D1D1B}
+.lg-card{background:#fff;color:#123524;border-radius:14px;padding:24px;width:min(380px,100%);box-shadow:0 1px 3px rgba(0,0,0,.133);font-family:Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .lg-logo{width:64px;height:64px;margin-bottom:12px}.lg-logo svg{width:100%;height:100%}
 .lg-sub{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#717171;font-weight:600}
-.lg-card h2{margin:4px 0 18px;font-size:20px;text-transform:uppercase;letter-spacing:.02em}
+.lg-card h2{margin:6px 0 6px;font-size:22px;font-weight:700;letter-spacing:0}.lg-intro{margin:0 0 16px;font-size:15px;color:#6B7280;line-height:1.4}
 .lg-card label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px}
 .lg-card input{width:100%;box-sizing:border-box;font:inherit;font-size:18px;padding:12px;border:1px solid #D3CAC2;border-radius:6px;background:#FAF8F6}
 .lg-card .btn{width:100%;margin-top:14px;min-height:48px;font-size:16px}
