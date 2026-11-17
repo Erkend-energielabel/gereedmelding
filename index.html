@@ -59,7 +59,7 @@ html.uitgelogd body{overflow:hidden}
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.0/lib/msal-browser.min.js"></script><script src="firebase-config.js"></script>
 <script>
 /* ---------- Firebase-koppeling: login met code, database en downloads ---------- */
 (function(){
@@ -87,7 +87,7 @@ html.uitgelogd body{overflow:hidden}
   window.csLogin=function(code){code=String(code||'').trim();if(code.length<6){fout('De code is minimaal 6 tekens.');return Promise.resolve()}fout('');
     return auth.signInWithEmailAndPassword(LG.monteur,code).catch(function(e){
       fout(e&&e.code==='auth/unauthorized-domain'?'Dit adres mag niet inloggen. Open de app via '+APPURL:e&&e.code==='auth/network-request-failed'?'Geen verbinding. Inloggen kan alleen online.':e&&e.code==='auth/too-many-requests'?'Te vaak geprobeerd. Wacht even en probeer opnieuw.':'Onjuiste code.')})};
-  var msBtn=document.getElementById('lgMs');if(msBtn)msBtn.addEventListener('click',function(){fout('');msBtn.disabled=true;var pr=new firebase.auth.OAuthProvider('microsoft.com');pr.setCustomParameters({prompt:'select_account',tenant:'59e480d9-96d4-4fda-8be4-6138b1c8577c'});auth.signInWithRedirect(pr).catch(function(e){fout(e&&e.code==='auth/unauthorized-domain'?'Dit adres mag niet inloggen. Open de app via '+APPURL:'Microsoft-inloggen mislukt ('+(e&&e.code||'onbekend')+'). Probeer opnieuw.')}).then(function(){msBtn.disabled=false},function(){msBtn.disabled=false})});window.csLogout=function(){try{localStorage.removeItem('cs-gm-concept')}catch(e){}auth.signOut()};
+  var pca=window.msal?new msal.PublicClientApplication({auth:{clientId:'0f3db257-9200-4fca-897a-77481a5c1d01',authority:'https://login.microsoftonline.com/59e480d9-96d4-4fda-8be4-6138b1c8577c',redirectUri:APPURL},cache:{cacheLocation:'localStorage'}}):null; function msWissel(r){return auth.signInWithCredential(new firebase.auth.OAuthProvider('microsoft.com').credential({idToken:r.idToken,accessToken:r.accessToken}))} function msFout(e){return 'Microsoft-inloggen mislukt ('+((e&&(e.errorCode||e.code))||'onbekend')+'). Probeer opnieuw.'} if(pca)pca.handleRedirectPromise().then(function(r){return r?msWissel(r):null}).catch(function(e){fout(msFout(e))}); var msBtn=document.getElementById('lgMs');if(msBtn)msBtn.addEventListener('click',function(){fout('');if(!pca){fout('Microsoft-inloggen kan niet laden. Controleer je internetverbinding.');return}msBtn.disabled=true;pca.loginRedirect({scopes:['openid','profile','email'],prompt:'select_account'}).catch(function(e){fout(msFout(e));msBtn.disabled=false})});window.csLogout=function(){try{localStorage.removeItem('cs-gm-concept')}catch(e){}auth.signOut()};
 })();
 </script>
 
