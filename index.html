@@ -4,11 +4,11 @@
     <div class="lg-logo" id="lgLogo"></div>
     <div class="lg-sub">Bouwen is mensenwerk · Opleverrapport</div>
     <h2>Gereedmelding CV / warmtenet-installatie</h2>
-    <label for="lgCode">Code</label>
+    <button class="btn ghost" type="button" id="lgMs" style="width:100%;margin-top:4px;min-height:48px">Inloggen met Microsoft (kantoor)</button><p style="text-align:center;color:#717171;font-size:12px;margin:12px 0 4px">of met de code (monteurs)</p><label for="lgCode">Code</label>
     <input id="lgCode" type="password" autocomplete="current-password" placeholder="Voer je code in" enterkeyhint="go">
     <p class="lg-err" id="lgErr" hidden></p>
     <button class="btn primary" type="submit" id="lgBtn">Inloggen</button>
-    <p class="lg-note">Monteurs gebruiken de monteurscode, kantoor de kantoorcode.</p>
+    <p class="lg-note">Kantoor logt in met het De Laat Bouwbegeleiding-account. Monteurs gebruiken de monteurscode.</p>
   </form>
 </div>
 <style>
@@ -79,15 +79,15 @@ html.uitgelogd body{overflow:hidden}
   firebase.initializeApp(cfg);
   var fs=firebase.firestore();try{fs.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
   var auth=firebase.auth(), dbw={doc:function(p){return wDoc(fs.doc(p))},collection:function(p){return wQ(fs.collection(p))}}, eerst=true;
-  auth.onAuthStateChanged(function(u){
-    if(u){var rol=u.email===LG.kantoor?'kantoor':'monteur';window.csRole=rol;var h=document.documentElement;h.classList.remove('rol-kantoor','rol-monteur');h.classList.add('rol-'+rol);
+  var MSD=/@delaatbouwbegeleiding\.nl$/i;function isMsKantoor(u){return !!(u&&u.email&&MSD.test(u.email))}auth.onAuthStateChanged(function(u){if(u&&u.providerData&&u.providerData.some(function(p){return p&&p.providerId==='microsoft.com'})&&!isMsKantoor(u)){auth.signOut();fout('Dit Microsoft-account heeft geen kantoortoegang.');return}
+    if(u){var rol=(u.email===LG.kantoor||isMsKantoor(u))?'kantoor':'monteur';window.csRole=rol;var h=document.documentElement;h.classList.remove('rol-kantoor','rol-monteur');h.classList.add('rol-'+rol);
       ui(function(){var t=document.getElementById('rolTag');if(t)t.textContent=rol==='kantoor'?'Kantoor':'Monteur'});toon(false);resolveDb(dbw)}
     else{toon(true);if(!eerst)location.reload()}
     eerst=false});
   window.csLogin=function(code){code=String(code||'').trim();if(code.length<6){fout('De code is minimaal 6 tekens.');return Promise.resolve()}fout('');
     return auth.signInWithEmailAndPassword(LG.kantoor,code).catch(function(){return auth.signInWithEmailAndPassword(LG.monteur,code)}).catch(function(e){
       fout(e&&e.code==='auth/unauthorized-domain'?'Dit adres mag niet inloggen. Open de app via '+APPURL:e&&e.code==='auth/network-request-failed'?'Geen verbinding. Inloggen kan alleen online.':e&&e.code==='auth/too-many-requests'?'Te vaak geprobeerd. Wacht even en probeer opnieuw.':'Onjuiste code.')})};
-  window.csLogout=function(){try{localStorage.removeItem('cs-gm-concept')}catch(e){}auth.signOut()};
+  var msBtn=document.getElementById('lgMs');if(msBtn)msBtn.addEventListener('click',function(){fout('');msBtn.disabled=true;var pr=new firebase.auth.OAuthProvider('microsoft.com');pr.setCustomParameters({prompt:'select_account',tenant:'59e480d9-96d4-4fda-8be4-6138b1c8577c'});auth.signInWithPopup(pr).catch(function(e){if(e&&(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'))return;fout(e&&e.code==='auth/unauthorized-domain'?'Dit adres mag niet inloggen. Open de app via '+APPURL:'Microsoft-inloggen mislukt. Probeer opnieuw.')}).then(function(){msBtn.disabled=false},function(){msBtn.disabled=false})});window.csLogout=function(){try{localStorage.removeItem('cs-gm-concept')}catch(e){}auth.signOut()};
 })();
 </script>
 
