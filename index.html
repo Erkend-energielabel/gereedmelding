@@ -590,11 +590,11 @@ section.skipped{border-left-color:var(--bad)}
 .gv-laag{display:flex;align-items:stretch;gap:6px;margin-bottom:10px;padding-bottom:6px;border-bottom:3px solid #9A8D80}
 .gv-vd{flex:0 0 26px;font-size:11px;font-weight:700;color:#5E554C;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.35);border-radius:3px}
 .gv-ramen{display:grid;gap:8px;flex:1}
-.cx-chip.gv-w{min-height:46px;border-radius:2px;border:3px solid #5E5750;background:linear-gradient(180deg,#EAF2F8 0 55%,#DCE8F1 55%);box-shadow:inset 0 0 0 2px #fff;font-weight:700;color:#2F2D2B}
+.cx-chip.gv-w{min-height:34px;border-radius:2px;border:3px solid #5E5750;background:linear-gradient(180deg,#EAF2F8 0 55%,#DCE8F1 55%);box-shadow:inset 0 0 0 2px #fff;font-weight:700;color:#2F2D2B}
 .cx-chip.gv-w.done{background:#FCE3CF;border-color:#F3B27E;color:#7A3A06}
 .cx-chip.gv-w.af{background:#F8C79E;border-color:#EB6608}
 .cx-chip.gv-w.on{outline:3px solid #1D1D1B;outline-offset:2px}
-.cx-chip.gv-w.los{border-style:dashed}
+.cx-chip.gv-w.los{border-style:dashed} .gv-w small.wt{display:block;font-size:10px;font-weight:600;opacity:.8;line-height:1.1;margin-top:1px}
 .gv-voet{background:#B8A592;height:26px;display:flex;justify-content:center;align-items:flex-end;border-inline:8px solid #B8A592}
 .gv-entree{width:38px;height:24px;background:#4A4541;border:2px solid #2F2D2B;border-bottom:0;border-radius:2px 2px 0 0}
 .gv-grond{height:8px;background:#6E655C;margin:0 -10px;border-radius:2px}
@@ -711,7 +711,7 @@ section.skipped{border-left-color:var(--bad)}
       var sv0=svMap.get(a.straat.trim().toLowerCase()+'|'+String(a.nr||'').trim().toLowerCase().replace(/\s+/g,''));
       var sv=sv0&&(sv0.rad||sv0.afgerond)?sv0:null;
       if(sv)nDone++;
-      return '<button type="button" class="'+cls+(a.id===st.cur?' on':'')+(a.los?' los':'')+(sv?' done':'')+(sv&&sv.afgerond?' af':'')+(sv0&&sv0.open?' open':'')+(sv0&&sv0.schade?' schade':'')+'" data-id="'+a.id+'"'+(extra||'')+' title="'+esc((sv0&&sv0.open?'⚠ Terugkomen'+(sv0.openTxt?': '+sv0.openTxt:'')+' — ':'')+a.straat+' '+a.nr+(a.vd!==undefined&&a.vd!==''?' · '+vdLbl(a.vd):'')+(a.pc?' · '+a.pc:'')+(a.bnr?' · bnr '+a.bnr:'')+(sv?(sv.afgerond?' · afgerond':' · radiatoren ingevuld'):(sv0?' · melding gestart, nog geen radiatoren':'')))+'">'+esc(a.nr||'–')+(sv&&sv.afgerond?' ✓':'')+'</button>';
+      return '<button type="button" class="'+cls+(a.id===st.cur?' on':'')+(a.los?' los':'')+(sv?' done':'')+(sv&&sv.afgerond?' af':'')+(sv0&&sv0.open?' open':'')+(sv0&&sv0.schade?' schade':'')+'" data-id="'+a.id+'"'+(extra||'')+' title="'+esc((sv0&&sv0.open?'⚠ Terugkomen'+(sv0.openTxt?': '+sv0.openTxt:'')+' — ':'')+a.straat+' '+a.nr+(a.vd!==undefined&&a.vd!==''?' · '+vdLbl(a.vd):'')+(a.pc?' · '+a.pc:'')+(a.bnr?' · bnr '+a.bnr:'')+(sv?(sv.afgerond?' · afgerond':' · radiatoren ingevuld'):(sv0?' · melding gestart, nog geen radiatoren':'')))+'">'+esc(a.nr||'–')+(sv&&sv.afgerond?' ✓':'')+(a.wt&&cls.indexOf('gv-w')>=0?'<small class="wt">'+esc(String(a.wt).replace(/^(Woningtype |Type )/i,'T').replace('_sp','sp'))+'</small>':'')+'</button>';
     }
     // groepeer per blok
     var groepen=[], gmap={};
