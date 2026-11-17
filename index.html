@@ -478,7 +478,19 @@ section.skipped{border-left-color:var(--bad)}
     <label class="btn primary cx-in k-only" for="cxFile">Complex inlezen</label>
     <input type="file" id="cxFile" accept=".xlsx,.xls,.csv,.txt" hidden>
     <button type="button" class="btn k-only" id="cxLosBtn">＋ Los nummer</button>
+    <button type="button" class="btn k-only" id="cxNieuwBtn">＋ Nieuw project</button>
     <button type="button" class="btn k-only" id="cxTpl" hidden title="Lege Excel met de juiste kolommen om je adressen in te vullen">⬇ Invul-Excel</button>
+  </div>
+  <div class="cx-los k-only" id="cxNieuw" hidden>
+    <div class="cx-losgrid">
+      <input id="cxNNaam" placeholder="Projectnaam (verplicht)">
+      <input id="cxNOg" placeholder="Opdrachtgever">
+      <input id="cxNPnr" placeholder="Projectnummer">
+    </div>
+    <div class="cx-losbtns">
+      <button type="button" class="btn primary" id="cxNAdd">Project aanmaken</button>
+      <button type="button" class="btn ghost" id="cxNCancel">Annuleren</button>
+    </div>
   </div>
   <div class="cx-prog" id="cxProg" hidden></div>
   <div class="cx-meta" id="cxMeta" hidden>
@@ -871,6 +883,18 @@ section.skipped{border-left-color:var(--bad)}
     if(!b.dataset.arm){b.dataset.arm=1;b.textContent='zeker? tik nogmaals om "'+c.naam+'" ('+c.adr.length+' nummers) te verwijderen';clearTimeout(delT);delT=setTimeout(function(){delete b.dataset.arm;b.textContent='complex verwijderen'},4000);return}
     delete b.dataset.arm;b.textContent='complex verwijderen';clearTimeout(delT);
     st.cx=st.cx.filter(function(x){return x!==c});st.sel='';st.cur=null;save();render()});
+  // nieuw project
+  $('cxNieuwBtn').addEventListener('click',function(){ var f=$('cxNieuw'); f.hidden=!f.hidden; if(!f.hidden){ $('cxNNaam').value=''; $('cxNOg').value=''; $('cxNPnr').value=''; setTimeout(function(){$('cxNNaam').focus()},30); } });
+  $('cxNCancel').addEventListener('click',function(){ $('cxNieuw').hidden=true; });
+  $('cxNAdd').addEventListener('click',function(){
+    var naam=norm($('cxNNaam').value);
+    if(!naam){ $('cxHint').textContent='Vul een projectnaam in.'; $('cxHint').className='pchint'; return; }
+    if(st.cx.some(function(x){return String(x.naam).toLowerCase()===naam.toLowerCase()})){ $('cxHint').textContent='Er bestaat al een project met de naam "'+naam+'".'; $('cxHint').className='pchint'; return; }
+    var c={id:uid(),naam:naam,og:norm($('cxNOg').value),pnr:norm($('cxNPnr').value),adr:[]};
+    st.cx.push(c); st.sel=c.id; st.blok='*'; st.cur=null; $('cxZoek').value=''; $('cxNieuw').hidden=true;
+    save(); render();
+    $('cxHint').textContent='Project "'+naam+'" aangemaakt. Voeg nu woningen toe met ＋ Los nummer of Complex inlezen.'; $('cxHint').className='pchint';
+  });
   // los nummer
   function losDoel(){var c=cxCur();$('cxLDoel').textContent='Wordt toegevoegd aan: '+(c?c.naam:LOS);}
   $('cxLosBtn').addEventListener('click',function(){
