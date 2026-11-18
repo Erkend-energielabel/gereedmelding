@@ -719,7 +719,7 @@ section.skipped{border-left-color:var(--bad)}
     $('cxNrs').classList.toggle('gevel',st.view!=='lijst');
     $('cxVwG').setAttribute('aria-pressed',st.view!=='lijst');$('cxVwL').setAttribute('aria-pressed',st.view==='lijst');
     groepen.forEach(function(b){
-      var arr=gmap[b], titel=heeftBlok?(b?'Blok '+esc(b):'Zonder blok'):esc(c.naam); var verborgen=!!(c&&c.verborgen&&c.verborgen[b]);html+='<label class="gv-aan k-only"><input type="checkbox" data-tb="'+esc(b)+'"'+(verborgen?'':' checked')+'> '+(b?'Strang '+esc(b):'Zonder blok')+'</label>';if(verborgen) return;
+      var arr=gmap[b], titel=heeftBlok?(b?'Blok '+esc(b):'Zonder blok'):esc(c.naam); var verborgen=!!(c&&c.verborgen&&c.verborgen[b]);html+='<label class="gv-aan k-only"><input type="checkbox" data-tb="'+esc(b)+'"'+(verborgen?'':' checked')+'> '+(b?esc(b):'Zonder blok')+'</label>';if(verborgen) return;
       if(st.view==='lijst'){
         html+='<div class="cx-grp">'+(heeftBlok?'<p class="cx-gh">'+titel+'</p>':'');var gs=null;
         arr.forEach(function(a){
