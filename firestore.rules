@@ -2,7 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function ingelogd() { return request.auth != null; }
-    function kantoor()  { return request.auth != null && request.auth.token.email == 'kantoor@gereedmelding.app'; }
+    function kantoor()  { return request.auth != null && (request.auth.token.email == 'kantoor@gereedmelding.app'
+      || (request.auth.token.firebase.sign_in_provider == 'microsoft.com' && request.auth.token.email.matches('.*@delaatbouwbegeleiding[.]nl$'))); }
 
     // Meldingen: iedereen die is ingelogd mag lezen, aanmaken en bijwerken; alleen kantoor mag verwijderen
     match /meldingen/{id} {
